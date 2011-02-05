@@ -1,5 +1,6 @@
 package org.matt1.http;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -10,6 +11,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.matt1.http.workers.SimpleHTTPWorker;
+import org.matt1.http.workers.WorkerInterface;
 import org.matt1.utils.Logger;
 
 import android.os.Handler;
@@ -24,6 +27,10 @@ public class Server implements Runnable {
 	private static final int QUEUE_TIMEOUT = 30000;
 	private static final int MAX_SOCKET_BACKLOG = 80;
 	private static final int PORT = 8080;
+	
+	private static final File wwwRoot = new File("/sdcard/wwwroot");
+	
+	public static final String SERVER_NAME = "AndroidHTTPServer (android/linux)";
 	
 	private BlockingQueue<Runnable> queue;
 	private ThreadPoolExecutor executorService;
@@ -44,6 +51,11 @@ public class Server implements Runnable {
 		Looper.prepare();
         Socket workerSocket = null;  
 		
+        if (!wwwRoot.canRead()) {
+        	Logger.error("Cannot start server as unable to read root directory at " + wwwRoot.getAbsolutePath());
+        	
+        }
+                
         Logger.debug("Server initialised - building thread pool...");
         Logger.debug("Initial threads: " + INITIAL_THREADS);
         Logger.debug("Maximum threads: " + MAXIMUM_THREADS);
@@ -67,7 +79,9 @@ public class Server implements Runnable {
 			while (mRunFlag) {
 				
 				workerSocket = mSocket.accept();
-				executorService.execute(new Worker(workerSocket));
+				WorkerInterface worker = new SimpleHTTPWorker();
+				worker.InitialiseWorker(workerSocket, wwwRoot);
+				executorService.execute((Runnable) worker);
 				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());
 				
 			}
@@ -84,9 +98,6 @@ public class Server implements Runnable {
 		} catch (IOException e) {
 			Logger.error("Unexpected IOException starting server socket!");
 		}
-		
-		
-
 	}
 
 }
