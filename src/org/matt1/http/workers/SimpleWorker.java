@@ -32,12 +32,7 @@ public class SimpleWorker extends AbstractWorker {
 	private Socket mSocket;
 	private int mTimeout = 30000;
 	private static final int BUFFER_SIZE = 8192;
-	
 	private static File wwwRoot;
-	
-	public SimpleWorker() {
-		Logger.debug("New worker initialised.");
-	}
 
 	@Override
 	public void InitialiseWorker(Socket pSocket, File pRootDirectory) {
@@ -75,6 +70,8 @@ public class SimpleWorker extends AbstractWorker {
 			if (request == null || "".equals(request)) {
 				Logger.error("HTTP Request was null or zero-length");
 				writeStatus(mSocket, HttpStatus.HTTP400);
+			} else {
+				Logger.debug("Request: " + request);
 			}
 			
 			// TODO: malformed request handler.
@@ -90,34 +87,30 @@ public class SimpleWorker extends AbstractWorker {
 				resource = cleanResource(resource);
 				
 				File file = new File(wwwRoot.getAbsolutePath() + resource);
-				if (!file.canRead()) {
+				if (!file.exists() || !file.canRead()) {
 					writeStatus(mSocket, HttpStatus.HTTP404);
+				} else {								
+					FileInputStream fileReader = new FileInputStream(file);
+					byte[] fileContent = new byte[(int) file.length()];
+					fileReader.read(fileContent, 0, (int) file.length());
+					fileReader.close();
+					String ext = MimeTypeMap.getFileExtensionFromUrl(resource);
+					String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+					if (null == type || "".equals("null")) {
+						type = "text/html";
+					}					
+					List<HttpHeader> headers = new Vector<HttpHeader>();
+					headers.add(new ContentTypeHttpHeader(type));					
+					writeResponse(fileContent, mSocket, headers, HttpStatus.HTTP200);
 				}
-				
-				FileInputStream fileReader = new FileInputStream(file);
-				byte[] fileContent = new byte[(int) file.length()];
-				fileReader.read(fileContent, 0, (int) file.length());
-				fileReader.close();
-				String ext = MimeTypeMap.getFileExtensionFromUrl(resource);
-				String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
-				if (null == type || "".equals("null")) {
-					type = "text/html";
-				}
-				
-				List<HttpHeader> headers = new Vector<HttpHeader>();
-				headers.add(new ContentTypeHttpHeader(type));
-				
-				writeResponse(fileContent, mSocket, headers, HttpStatus.HTTP200);
 			}
 		
 		} catch (SocketTimeoutException ste) {
 			Logger.error("Socket timed out after " + mTimeout + "ms when trying to serve thread");
 		} catch (IOException e) {
-			Logger.error("IOException when trying to serve thread!");
+			Logger.error("IOException when trying to serve thread: " + e.toString());
 			writeStatus(mSocket, HttpStatus.HTTP500);
-		} finally {
-			Logger.debug("Worker " + this.toString() + " finsihed.");
-		}
+		} 
 
 	}
 

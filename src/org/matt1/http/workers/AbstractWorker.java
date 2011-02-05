@@ -58,8 +58,8 @@ public abstract class AbstractWorker implements Runnable, WorkerInterface {
 					outStream.write(header.getBytes());
 				}
 				outStream.write(new HttpHeader("Content-length", String.valueOf(pData.length)).getBytes());
-				outStream.write(new DateHttpHeader().getBytes());
-				outStream.write(mServerHeader.getBytes());
+				//outStream.write(new DateHttpHeader().getBytes());
+				//outStream.write(mServerHeader.getBytes());
 				outStream.write(System.getProperty("line.separator").getBytes());
 				
 				outStream.write(pData, 0, pData.length);

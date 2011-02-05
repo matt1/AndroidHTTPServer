@@ -16,14 +16,13 @@ import org.matt1.http.workers.WorkerInterface;
 import org.matt1.utils.Logger;
 
 import android.os.Handler;
-import android.os.Looper;
 
 public class Server implements Runnable {
 
 	public Handler mHandler;
 	
-	private static final int INITIAL_THREADS = 5;
-	private static final int MAXIMUM_THREADS = 20;
+	private static final int INITIAL_THREADS = 3;
+	private static final int MAXIMUM_THREADS = 10;
 	private static final int QUEUE_TIMEOUT = 30000;
 	private static final int MAX_SOCKET_BACKLOG = 80;
 	private static final int PORT = 8080;
@@ -48,12 +47,14 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		
-		Looper.prepare();
+		Logger.debug("Server thread initialised!  Attempting to start server.");
+		
+		//Looper.prepare();
         Socket workerSocket = null;  
 		
         if (!wwwRoot.canRead()) {
         	Logger.error("Cannot start server as unable to read root directory at " + wwwRoot.getAbsolutePath());
-        	
+        	return;
         }
                 
         Logger.debug("Server initialised - building thread pool...");
@@ -69,7 +70,7 @@ public class Server implements Runnable {
     			TimeUnit.MILLISECONDS, 
     			queue);
 
-    	Logger.debug("Thread pool constructed, starting socket...");
+    	Logger.debug("Thread pool constructed, starting server socket...");
         
 		try {
 			
