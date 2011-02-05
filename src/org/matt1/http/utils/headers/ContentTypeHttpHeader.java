@@ -1,4 +1,4 @@
-package org.matt1.http.utils;
+package org.matt1.http.utils.headers;
 
 /**
  * <p>
@@ -7,9 +7,9 @@ package org.matt1.http.utils;
  * @author Matt
  *
  */
-public class ContentTypeHTTPHeader extends HTTPHeader {
+public class ContentTypeHttpHeader extends HttpHeader {
 
-	public ContentTypeHTTPHeader(String pType) {
+	public ContentTypeHttpHeader(String pType) {
 		super("Content-type", pType);
 	}
 	

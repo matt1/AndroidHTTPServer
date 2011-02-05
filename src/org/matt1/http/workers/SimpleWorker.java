@@ -10,8 +10,9 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Vector;
 
-import org.matt1.http.utils.ContentTypeHTTPHeader;
-import org.matt1.http.utils.HTTPHeader;
+import org.matt1.http.utils.headers.ContentTypeHttpHeader;
+import org.matt1.http.utils.headers.HttpHeader;
+import org.matt1.http.utils.response.HttpStatus;
 import org.matt1.utils.Logger;
 
 import android.os.Handler;
@@ -37,14 +38,11 @@ public class SimpleWorker extends AbstractWorker {
 	public SimpleWorker() {
 		Logger.debug("New worker initialised.");
 	}
-	
-
 
 	@Override
 	public void InitialiseWorker(Socket pSocket, File pRootDirectory) {
 		InitialiseWorker(pSocket, mTimeout, pRootDirectory);		
 	}
-
 
 	@Override
 	public void InitialiseWorker(Socket pSocket, int pTimeout,	File pRootDirectory) {
@@ -76,7 +74,7 @@ public class SimpleWorker extends AbstractWorker {
 			
 			if (request == null || "".equals(request)) {
 				Logger.error("HTTP Request was null or zero-length");
-				return;
+				writeStatus(mSocket, HttpStatus.HTTP400);
 			}
 			
 			// TODO: malformed request handler.
@@ -84,7 +82,7 @@ public class SimpleWorker extends AbstractWorker {
 			
 			if (!request.startsWith("GET")) {
 				// Bad method
-				sendError(400, mSocket);
+				writeStatus(mSocket, HttpStatus.HTTP405);
 			} else {
 				// Good method
 				
@@ -93,7 +91,7 @@ public class SimpleWorker extends AbstractWorker {
 				
 				File file = new File(wwwRoot.getAbsolutePath() + resource);
 				if (!file.canRead()) {
-					sendError(404, mSocket);
+					writeStatus(mSocket, HttpStatus.HTTP404);
 				}
 				
 				FileInputStream fileReader = new FileInputStream(file);
@@ -106,17 +104,17 @@ public class SimpleWorker extends AbstractWorker {
 					type = "text/html";
 				}
 				
-				List<HTTPHeader> headers = new Vector<HTTPHeader>();
-				headers.add(new ContentTypeHTTPHeader(type));
+				List<HttpHeader> headers = new Vector<HttpHeader>();
+				headers.add(new ContentTypeHttpHeader(type));
 				
-				writeResponse(fileContent, mSocket, headers);
+				writeResponse(fileContent, mSocket, headers, HttpStatus.HTTP200);
 			}
 		
 		} catch (SocketTimeoutException ste) {
 			Logger.error("Socket timed out after " + mTimeout + "ms when trying to serve thread");
 		} catch (IOException e) {
 			Logger.error("IOException when trying to serve thread!");
-			sendError(500, mSocket);
+			writeStatus(mSocket, HttpStatus.HTTP500);
 		} finally {
 			Logger.debug("Worker " + this.toString() + " finsihed.");
 		}
@@ -136,7 +134,4 @@ public class SimpleWorker extends AbstractWorker {
 		
 		return result;
 	}
-
-
-
 }

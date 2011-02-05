@@ -1,4 +1,4 @@
-package org.matt1.http.utils;
+package org.matt1.http.utils.headers;
 
 import java.util.Date;
 
@@ -9,7 +9,7 @@ import java.util.Date;
  * @author Matt
  *
  */
-public class DateHTTPHeader extends HTTPHeader {
+public class DateHttpHeader extends HttpHeader {
 
 	public String toString() {
 		return "Date: " + String.valueOf(new Date()) + System.getProperty("line.separator");

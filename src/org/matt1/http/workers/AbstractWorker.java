@@ -8,10 +8,11 @@ import java.net.SocketException;
 import java.util.List;
 import java.util.Vector;
 
-import org.matt1.http.utils.ContentTypeHTTPHeader;
-import org.matt1.http.utils.DateHTTPHeader;
-import org.matt1.http.utils.HTTPHeader;
-import org.matt1.http.utils.ServerHTTPHeader;
+import org.matt1.http.utils.headers.ContentTypeHttpHeader;
+import org.matt1.http.utils.headers.DateHttpHeader;
+import org.matt1.http.utils.headers.HttpHeader;
+import org.matt1.http.utils.headers.ServerHttpHeader;
+import org.matt1.http.utils.response.HttpStatus;
 import org.matt1.utils.Logger;
 
 /**
@@ -24,7 +25,7 @@ import org.matt1.utils.Logger;
  */
 public abstract class AbstractWorker implements Runnable, WorkerInterface {
 
-	private final ServerHTTPHeader mServerHeader = new ServerHTTPHeader();
+	private final ServerHttpHeader mServerHeader = new ServerHttpHeader();
 	
 	@Override
 	public abstract void InitialiseWorker(Socket pSocket, File pRootDirectory);
@@ -44,21 +45,20 @@ public abstract class AbstractWorker implements Runnable, WorkerInterface {
 	 * @param pSocket Socket to write to
 	 * @param pHeaders Any additional headers to provide
 	 */
-	protected void writeResponse(byte[] pData, Socket pSocket, List<HTTPHeader> pHeaders) {
+	protected void writeResponse(byte[] pData, Socket pSocket, List<HttpHeader> pHeaders, HttpStatus pStatus) {
 		try {
 			
 			if (!pSocket.isClosed() && pSocket.isConnected()) {
 			
-				OutputStream outStream = pSocket.getOutputStream();
-				
-				outStream.write(("HTTP/1.0 200 OK" + System.getProperty("line.separator")).getBytes());
+				OutputStream outStream = pSocket.getOutputStream();				
+				outStream.write(("HTTP/1.0 " + pStatus.getDescription() + System.getProperty("line.separator")).getBytes());
 				
 				// Do headers
-				for (HTTPHeader header : pHeaders) {
+				for (HttpHeader header : pHeaders) {
 					outStream.write(header.getBytes());
 				}
-				outStream.write(new HTTPHeader("Content-length", String.valueOf(pData.length)).getBytes());
-				outStream.write(new DateHTTPHeader().getBytes());
+				outStream.write(new HttpHeader("Content-length", String.valueOf(pData.length)).getBytes());
+				outStream.write(new DateHttpHeader().getBytes());
 				outStream.write(mServerHeader.getBytes());
 				outStream.write(System.getProperty("line.separator").getBytes());
 				
@@ -72,8 +72,7 @@ public abstract class AbstractWorker implements Runnable, WorkerInterface {
 			Logger.debug("Got socket exception: " + se.getMessage());
 		} catch (IOException e) {
 			Logger.error("IOException when trying to write response!");
-		}
-		
+		} 	
 	}
 
 	/**
@@ -82,26 +81,21 @@ public abstract class AbstractWorker implements Runnable, WorkerInterface {
 	 * </p>
 	 * @param pResponse Stream of bytes to write
 	 */
-	private void writeResponse(String pResponse, Socket pSocket) {
-		List<HTTPHeader> headers = new Vector<HTTPHeader>();
-		headers.add(new ContentTypeHTTPHeader("text/html"));
-		writeResponse(pResponse.getBytes(), pSocket, headers);
+	protected void writeResponse(String pResponse, Socket pSocket, HttpStatus pStatus) {
+		List<HttpHeader> headers = new Vector<HttpHeader>();
+		headers.add(new ContentTypeHttpHeader("text/html"));
+		writeResponse(pResponse.getBytes(), pSocket, headers, HttpStatus.HTTP200);
 	}
-	
 	
 	/**
 	 * <p>
-	 * Send an error message to the client.  Currently only 404 and 500 are supported, all others default to 400 
-	 * (bad request)
+	 * Send a simple response message (e.g. HTTP 500 - server error")
 	 * </p>
-	 * @param pError Error code to use.  
+	 * @param pSocket
+	 * @param pStatus
 	 */
-	protected void sendError(int pError, Socket pSocket) {
-		if (pError == 404) {
-			writeResponse("404 - file not found.", pSocket);
-		} if (pError == 500) {
-			writeResponse("500 - server error.", pSocket);
-		}
-		writeResponse("400 - bad request.", pSocket);
+	protected void writeStatus(Socket pSocket, HttpStatus pStatus) {
+		writeResponse(pStatus.getDescription(), pSocket, pStatus);
 	}
+
 }

@@ -1,4 +1,4 @@
-package org.matt1.http.utils;
+package org.matt1.http.utils.headers;
 
 /**
  * <p>
@@ -7,7 +7,7 @@ package org.matt1.http.utils;
  * @author Matt
  *
  */
-public class ServerHTTPHeader extends HTTPHeader {
+public class ServerHttpHeader extends HttpHeader {
 
 	public String toString() {
 		return "Server: AndroidHTTPServer (android/linux)" + System.getProperty("line.separator");

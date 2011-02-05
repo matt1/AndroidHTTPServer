@@ -1,4 +1,4 @@
-package org.matt1.http.utils;
+package org.matt1.http.utils.headers;
 
 /**
  * <p>
@@ -7,7 +7,7 @@ package org.matt1.http.utils;
  * @author Matt
  *
  */
-public class HTTPHeader {
+public class HttpHeader {
 
 	private String mKey;
 	
@@ -18,7 +18,7 @@ public class HTTPHeader {
 	 * Creates a new HTTP Header element.
 	 * </p>
 	 */
-	public HTTPHeader() {
+	public HttpHeader() {
 
 	}
 	
@@ -29,7 +29,7 @@ public class HTTPHeader {
 	 * @param pKey The key to use (do not include the colon character)
 	 * @param pValue The value to use
 	 */
-	public HTTPHeader(String pKey, String pValue) {
+	public HttpHeader(String pKey, String pValue) {
 		mKey = pKey;
 		mValue = pValue;
 	}
