@@ -11,7 +11,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.matt1.http.workers.SimpleHTTPWorker;
+import org.matt1.http.workers.SimpleWorker;
 import org.matt1.http.workers.WorkerInterface;
 import org.matt1.utils.Logger;
 
@@ -79,7 +79,7 @@ public class Server implements Runnable {
 			while (mRunFlag) {
 				
 				workerSocket = mSocket.accept();
-				WorkerInterface worker = new SimpleHTTPWorker();
+				WorkerInterface worker = new SimpleWorker();
 				worker.InitialiseWorker(workerSocket, wwwRoot);
 				executorService.execute((Runnable) worker);
 				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());

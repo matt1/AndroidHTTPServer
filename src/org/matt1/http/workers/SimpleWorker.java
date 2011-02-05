@@ -25,7 +25,7 @@ import android.webkit.MimeTypeMap;
  * @author Matt
  *
  */
-public class SimpleHTTPWorker extends AbstractWorker {
+public class SimpleWorker extends AbstractWorker {
 
 	public Handler mHandler;
 	private Socket mSocket;
@@ -34,7 +34,7 @@ public class SimpleHTTPWorker extends AbstractWorker {
 	
 	private static File wwwRoot;
 	
-	public SimpleHTTPWorker() {
+	public SimpleWorker() {
 		Logger.debug("New worker initialised.");
 	}
 	
