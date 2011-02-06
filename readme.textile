@@ -5,10 +5,10 @@ _Multi-threaded HTTP server for Android devices_
 Android HTTP Server is a simple multi-threaded HTTP server designed to run on Android devices, including smart phones 
 and tablets.
 
-*Currently Android HTTP Server is in an early state of development and should not be considered ready for "prime time"*
-however it currently is able to reliably serve files from the device's disk (either on-board device memory or from
-the SD card).
-
+*Currently Android HTTP Server is in an early state of development and should not be considered ready for "prime time"*.
+However, as it currently stands it is able to stand-up to fairly vigorous multi-threaded benchmarking.  Early testing
+using JMeter indicates that when running on a standard HTC Wildfire (533MHz) device running Android 2.2 it can serve
+a test page at approximately 300 requests/s when debugging and approximately 1500 requests/s when not debugging.
 
 h2. License
 
