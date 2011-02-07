@@ -34,6 +34,9 @@ public class SimpleWorker extends AbstractWorker {
 	private static final int BUFFER_SIZE = 8192;
 	private static File wwwRoot;
 	
+	/** Static mime map as this is a really expensive operation */
+	private static final MimeTypeMap mMimeTypeMap = MimeTypeMap.getSingleton();
+	
 	/** Constants for Android string performance optimisations */
 	private static final String METHOD_GET = "GET";	
 	private static final String REQUEST_SEPARATOR = " ";
@@ -108,7 +111,7 @@ public class SimpleWorker extends AbstractWorker {
 					fileReader.read(fileContent, 0, (int) file.length());
 					fileReader.close();
 					String ext = MimeTypeMap.getFileExtensionFromUrl(resource);
-					String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+					String type = mMimeTypeMap.getMimeTypeFromExtension(ext);
 					if (null == type || NULL.equals(type)) {
 						type = DEAFUALT_MIMETYPE;
 					}					
