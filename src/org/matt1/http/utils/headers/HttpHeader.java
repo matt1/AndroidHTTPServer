@@ -16,7 +16,7 @@ public class HttpHeader {
 	
 	/** Constants for Android string optimisations */
 	private static final String HEADER_SEPARATOR = ": ";
-	protected static final String HEADER_LINE_SEPARATOR = "line.separator";
+	protected static final String HEADER_LINE_SEPARATOR = System.getProperty("line.separator");
 
 	/**
 	 * <p>
@@ -46,7 +46,7 @@ public class HttpHeader {
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(mKey).append(HEADER_SEPARATOR).append(mValue).append(System.getProperty(HEADER_LINE_SEPARATOR));
+		buffer.append(mKey).append(HEADER_SEPARATOR).append(mValue).append(HEADER_LINE_SEPARATOR);
 		return buffer.toString();
 	}
 	

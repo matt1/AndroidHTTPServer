@@ -60,11 +60,11 @@ public abstract class AbstractWorker implements Runnable, WorkerInterface {
 				
 				// Do headers
 				for (HttpHeader header : pHeaders) {
-					outStream.write(ByteUtils.getBytesFromString(header.toString()));
+					outStream.write(header.getBytes());
 				}
-				outStream.write(ByteUtils.getBytesFromString(new HttpHeader(CONTENT_LENGTH, String.valueOf(pData.length)).toString()));
+				outStream.write(new HttpHeader(CONTENT_LENGTH, String.valueOf(pData.length)).getBytes());
 				//outStream.write(new DateHttpHeader().getBytes());
-				//outStream.write(mServerHeader.getBytes());
+				outStream.write(mServerHeader.getBytes());
 				outStream.write(ByteUtils.getBytesFromString(LINE_SEPARATOR));
 				
 				outStream.write(pData, 0, pData.length);
