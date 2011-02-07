@@ -10,7 +10,7 @@ package org.matt1.http.utils.headers;
 public class ServerHttpHeader extends HttpHeader {
 
 	public String toString() {
-		return "Server: AndroidHTTPServer (android/linux)" + System.getProperty("line.separator");
+		return "Server: AndroidHTTPServer (android/linux)" + HEADER_LINE_SEPARATOR;
 	}
 	
 }

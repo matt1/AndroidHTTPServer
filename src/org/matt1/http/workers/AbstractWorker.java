@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Vector;
 
 import org.matt1.http.utils.headers.ContentTypeHttpHeader;
-import org.matt1.http.utils.headers.DateHttpHeader;
 import org.matt1.http.utils.headers.HttpHeader;
 import org.matt1.http.utils.headers.ServerHttpHeader;
 import org.matt1.http.utils.response.HttpStatus;
+import org.matt1.utils.ByteUtils;
 import org.matt1.utils.Logger;
 
 /**
@@ -26,6 +26,11 @@ import org.matt1.utils.Logger;
 public abstract class AbstractWorker implements Runnable, WorkerInterface {
 
 	private final ServerHttpHeader mServerHeader = new ServerHttpHeader();
+	
+	/** Constants for Android string performance optimisations */
+	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	private static final String HTTP_VERSION = "HTTP/1.0 ";
+	private static final String CONTENT_LENGTH = "Content-length";
 	
 	@Override
 	public abstract void InitialiseWorker(Socket pSocket, File pRootDirectory);
@@ -51,16 +56,16 @@ public abstract class AbstractWorker implements Runnable, WorkerInterface {
 			if (!pSocket.isClosed() && pSocket.isConnected()) {
 			
 				OutputStream outStream = pSocket.getOutputStream();				
-				outStream.write(("HTTP/1.0 " + pStatus.getDescription() + System.getProperty("line.separator")).getBytes());
+				outStream.write(ByteUtils.getBytesFromString(HTTP_VERSION + pStatus.getDescription() + LINE_SEPARATOR));
 				
 				// Do headers
 				for (HttpHeader header : pHeaders) {
-					outStream.write(header.getBytes());
+					outStream.write(ByteUtils.getBytesFromString(header.toString()));
 				}
-				outStream.write(new HttpHeader("Content-length", String.valueOf(pData.length)).getBytes());
+				outStream.write(ByteUtils.getBytesFromString(new HttpHeader(CONTENT_LENGTH, String.valueOf(pData.length)).toString()));
 				//outStream.write(new DateHttpHeader().getBytes());
 				//outStream.write(mServerHeader.getBytes());
-				outStream.write(System.getProperty("line.separator").getBytes());
+				outStream.write(ByteUtils.getBytesFromString(LINE_SEPARATOR));
 				
 				outStream.write(pData, 0, pData.length);
 				

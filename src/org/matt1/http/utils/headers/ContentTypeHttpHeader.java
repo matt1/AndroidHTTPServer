@@ -9,8 +9,12 @@ package org.matt1.http.utils.headers;
  */
 public class ContentTypeHttpHeader extends HttpHeader {
 
+	
+	/** Constants for Android string optimisations */
+	private static final String HEADER_CONTENT_TYPE = "Content-type";
+	
 	public ContentTypeHttpHeader(String pType) {
-		super("Content-type", pType);
+		super(HEADER_CONTENT_TYPE, pType);
 	}
 	
 }

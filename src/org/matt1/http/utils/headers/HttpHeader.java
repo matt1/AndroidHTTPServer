@@ -1,5 +1,7 @@
 package org.matt1.http.utils.headers;
 
+import org.matt1.utils.ByteUtils;
+
 /**
  * <p>
  * Represents a HTTP Header, e.g. "Content-type: text/html"
@@ -9,9 +11,12 @@ package org.matt1.http.utils.headers;
  */
 public class HttpHeader {
 
-	private String mKey;
-	
+	private String mKey;	
 	private String mValue;
+	
+	/** Constants for Android string optimisations */
+	private static final String HEADER_SEPARATOR = ": ";
+	protected static final String HEADER_LINE_SEPARATOR = "line.separator";
 
 	/**
 	 * <p>
@@ -41,7 +46,7 @@ public class HttpHeader {
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(mKey).append(": ").append(mValue).append(System.getProperty("line.separator"));
+		buffer.append(mKey).append(HEADER_SEPARATOR).append(mValue).append(System.getProperty(HEADER_LINE_SEPARATOR));
 		return buffer.toString();
 	}
 	
@@ -51,7 +56,8 @@ public class HttpHeader {
 	 * </p>
 	 */
 	public byte[] getBytes() {
-		return toString().getBytes();
+				
+		return ByteUtils.getBytesFromString(toString());
 	}
 	
 	public String getKey() {
