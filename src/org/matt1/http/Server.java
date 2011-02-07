@@ -79,8 +79,8 @@ public class Server implements Runnable {
 			
 			while (mRunFlag) {
 				
-				workerSocket = mSocket.accept();
 				WorkerInterface worker = new SimpleWorker();
+				workerSocket = mSocket.accept();				
 				worker.InitialiseWorker(workerSocket, wwwRoot);
 				executorService.execute((Runnable) worker);
 				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());

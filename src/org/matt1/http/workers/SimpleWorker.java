@@ -33,6 +33,18 @@ public class SimpleWorker extends AbstractWorker {
 	private int mTimeout = 30000;
 	private static final int BUFFER_SIZE = 8192;
 	private static File wwwRoot;
+	
+	/** Constants for Android string performance optimisations */
+	private static final String METHOD_GET = "GET";	
+	private static final String REQUEST_SEPARATOR = " ";
+	private static final String DEAFUALT_MIMETYPE = "text/html";
+	private static final String CLEANER_DOUBLE_DOT = "..";
+	private static final String CLEANER_DOUBLE_SLASH = "//";
+	private static final String CLEANER_SINGLE_SLASH = "/";
+	private static final String CLEANER_EMPTY_STRING = "";
+	private static final String NULL = "null";
+	
+
 
 	@Override
 	public void InitialiseWorker(Socket pSocket, File pRootDirectory) {
@@ -67,7 +79,7 @@ public class SimpleWorker extends AbstractWorker {
 			BufferedReader reader =  new BufferedReader(new InputStreamReader(mSocket.getInputStream()), BUFFER_SIZE);
 			String request = reader.readLine();
 			
-			if (request == null || "".equals(request)) {
+			if (request == null || CLEANER_EMPTY_STRING.equals(request)) {
 				Logger.error("HTTP Request was null or zero-length");
 				writeStatus(mSocket, HttpStatus.HTTP400);
 			} else {
@@ -75,13 +87,14 @@ public class SimpleWorker extends AbstractWorker {
 			}
 			
 			// TODO: malformed request handler.
-			String resource = request.split(" ")[1];
-			
-			if (!request.startsWith("GET")) {
+			String[] tokens = request.split(REQUEST_SEPARATOR);
+						
+			if (!tokens[0].equalsIgnoreCase(METHOD_GET)) {
 				// Bad method
 				writeStatus(mSocket, HttpStatus.HTTP405);
 			} else {
 				// Good method
+				String resource = tokens[1];
 				
 				// TODO security
 				resource = cleanResource(resource);
@@ -96,8 +109,8 @@ public class SimpleWorker extends AbstractWorker {
 					fileReader.close();
 					String ext = MimeTypeMap.getFileExtensionFromUrl(resource);
 					String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
-					if (null == type || "".equals("null")) {
-						type = "text/html";
+					if (null == type || NULL.equals(type)) {
+						type = DEAFUALT_MIMETYPE;
 					}					
 					List<HttpHeader> headers = new Vector<HttpHeader>();
 					headers.add(new ContentTypeHttpHeader(type));					
@@ -122,8 +135,8 @@ public class SimpleWorker extends AbstractWorker {
 	 * @return Cleaned string
 	 */
 	protected String cleanResource(String pResource) {
-		String result = pResource.replace("..", "");
-		result = result.replace("//", "/");
+		String result = pResource.replace(CLEANER_DOUBLE_DOT, CLEANER_EMPTY_STRING);
+		result = result.replace(CLEANER_DOUBLE_SLASH, CLEANER_SINGLE_SLASH);
 		
 		return result;
 	}
