@@ -67,10 +67,10 @@ public abstract class AbstractWorker implements Runnable {
 	 * server activity as the worker will not be running as a separate thread at this stage.
 	 * </p>
 	 * @param pMethod Http Method 
-	 * @param pResouce Resource
+	 * @param pResource Resource
 	 * @param pSocket The socket to write the response to
 	 */
-	public abstract void InitialiseWorker(HttpMethod pMethod, File pResouce, Socket pSocket);
+	public abstract void InitialiseWorker(HttpMethod pMethod, File pResource, Socket pSocket);
 	
 	/**
 	 * <p>
@@ -100,32 +100,36 @@ public abstract class AbstractWorker implements Runnable {
 			
 			if (request == null || CLEANER_EMPTY_STRING.equals(request)) {
 				Logger.error("HTTP Request was null or zero-length");
-				//writeStatus(pSocket, HttpStatus.HTTP400);
+				worker = new ErrorWorker();
+				worker.InitialiseWorker(null, null, pSocket);
+				((ErrorWorker) worker).SetError(HttpStatus.HTTP400);
 			} else {
 				Logger.debug("Request: " + request);
-			}
-			
-			// TODO: malformed request handler.
-			String[] tokens = request.split(REQUEST_SEPARATOR);
 						
-			HttpMethod method = HttpMethod.valueOf(tokens[0]);
-			
-			File file = new File(mWebRoot.getAbsolutePath() + tokens[1]);
-			
-			// TODO: configurable logic
-			
-			if (file.isDirectory()) {
-				worker = new DirectoryListingWorker();
-			} else {			
-				worker = new SimpleWorker();
+				// TODO: malformed request handler.
+				String[] tokens = request.split(REQUEST_SEPARATOR);
+							
+				HttpMethod method = HttpMethod.valueOf(tokens[0]);
+				
+				File file = new File(mWebRoot.getAbsolutePath() + tokens[1]);
+				
+				// TODO: configurable logic
+				
+				if (file.isDirectory()) {
+					worker = new DirectoryListingWorker();
+				} else {			
+					worker = new SimpleWorker();
+				}
+				worker.InitialiseWorker(method, file, pSocket);
 			}
-			worker.InitialiseWorker(method, file, pSocket);
 
 		} catch (SocketTimeoutException ste) {
 			Logger.error("Socket timed out after " + mTimeout + "ms when trying to serve thread");
 		} catch (IOException e) {
 			Logger.error("IOException when trying to serve thread: " + e.toString());
-			//writeStatus(pSocket, HttpStatus.HTTP500);
+			worker = new ErrorWorker();
+			worker.InitialiseWorker(null, null, pSocket);
+			((ErrorWorker) worker).SetError(HttpStatus.HTTP500);
 		} 
 
 		return worker;
@@ -175,6 +179,7 @@ public abstract class AbstractWorker implements Runnable {
 				outStream.write(pData, 0, pData.length);
 				
 				outStream.close();
+				pSocket.close();
 			} else {
 				Logger.debug("Socket was closed or disconnected before we could send response!");
 			}			
