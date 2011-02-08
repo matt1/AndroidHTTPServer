@@ -11,8 +11,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.matt1.http.workers.SimpleWorker;
-import org.matt1.http.workers.WorkerInterface;
+import org.matt1.http.workers.AbstractWorker;
 import org.matt1.utils.Logger;
 
 import android.os.Handler;
@@ -27,7 +26,7 @@ public class Server implements Runnable {
 	private static final int MAX_SOCKET_BACKLOG = 80;
 	private static final int PORT = 8080;
 	
-	private static final File wwwRoot = new File("/sdcard/wwwroot");
+	private static final File mWebRoot = new File("/sdcard");
 	
 	public static final String SERVER_NAME = "AndroidHTTPServer (android/linux)";
 	
@@ -52,8 +51,8 @@ public class Server implements Runnable {
 		//Looper.prepare();
         Socket workerSocket = null;  
 		
-        if (!wwwRoot.canRead()) {
-        	Logger.error("Cannot start server as unable to read root directory at " + wwwRoot.getAbsolutePath());
+        if (!mWebRoot.canRead()) {
+        	Logger.error("Cannot start server as unable to read root directory at " + mWebRoot.getAbsolutePath());
         	return;
         }
                 
@@ -79,9 +78,9 @@ public class Server implements Runnable {
 			
 			while (mRunFlag) {
 				
-				WorkerInterface worker = new SimpleWorker();
-				workerSocket = mSocket.accept();				
-				worker.InitialiseWorker(workerSocket, wwwRoot);
+				
+				workerSocket = mSocket.accept();	
+				AbstractWorker worker = AbstractWorker.getWorkerInstance(workerSocket, mWebRoot);
 				executorService.execute((Runnable) worker);
 				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());
 				

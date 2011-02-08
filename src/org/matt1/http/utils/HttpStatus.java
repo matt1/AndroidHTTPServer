@@ -1,4 +1,4 @@
-package org.matt1.http.utils.response;
+package org.matt1.http.utils;
 
 /**
  * <p>

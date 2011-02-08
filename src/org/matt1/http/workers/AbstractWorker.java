@@ -1,19 +1,25 @@
 package org.matt1.http.workers;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Vector;
 
+import org.matt1.http.utils.HttpMethod;
+import org.matt1.http.utils.HttpStatus;
 import org.matt1.http.utils.headers.ContentTypeHttpHeader;
 import org.matt1.http.utils.headers.HttpHeader;
 import org.matt1.http.utils.headers.ServerHttpHeader;
-import org.matt1.http.utils.response.HttpStatus;
 import org.matt1.utils.ByteUtils;
 import org.matt1.utils.Logger;
+
+import android.webkit.MimeTypeMap;
 
 /**
  * <p>
@@ -23,24 +29,123 @@ import org.matt1.utils.Logger;
  * @author Matt
  *
  */
-public abstract class AbstractWorker implements Runnable, WorkerInterface {
+public abstract class AbstractWorker implements Runnable {
 
 	private final ServerHttpHeader mServerHeader = new ServerHttpHeader();
+	
+	protected static final int BUFFER_SIZE = 8192;	
+	protected static final int mTimeout = 30000;
+	
+	private static File mWebRoot;
 	
 	/** Constants for Android string performance optimisations */
 	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private static final String HTTP_VERSION = "HTTP/1.0 ";
 	private static final String CONTENT_LENGTH = "Content-length";
+	private static final String CLEANER_DOUBLE_DOT = "..";
+	private static final String CLEANER_DOUBLE_SLASH = "//";
+	private static final String CLEANER_SINGLE_SLASH = "/";
+	private static final String CLEANER_EMPTY_STRING = "";
+	private static final String REQUEST_SEPARATOR = " ";
+	protected static final String DEAFUALT_MIMETYPE = "text/html";
+	protected static final String NULL = "null";
 	
-	@Override
-	public abstract void InitialiseWorker(Socket pSocket, File pRootDirectory);
+	/** Static mime map as this is a really expensive operation */
+	protected static final MimeTypeMap mMimeTypeMap = MimeTypeMap.getSingleton();
 
-	@Override
-	public abstract void InitialiseWorker(Socket pSocket, int pTimeout, File pRootDirectory);
 
-	@Override
+	/**
+	 * <p>
+	 * Method called to process the request on its own thread.
+	 * </p>
+	 */
 	public abstract void run();
+	
+	/**
+	 * <p>
+	 * Initialise the worker with everything it needs to process the request.  This should not actually "do" any
+	 * server activity as the worker will not be running as a separate thread at this stage.
+	 * </p>
+	 * @param pMethod Http Method 
+	 * @param pResouce Resource
+	 * @param pSocket The socket to write the response to
+	 */
+	public abstract void InitialiseWorker(HttpMethod pMethod, File pResouce, Socket pSocket);
+	
+	/**
+	 * <p>
+	 * Gets the request line of the incoming request and returns an appropriate type of worker to handle it.
+	 * </p>
+	 * @param pSocket
+	 * @return
+	 */
+	public static AbstractWorker getWorkerInstance(Socket pSocket, File pRoot) {
+ 		
+		AbstractWorker worker = null;
+		if (pSocket == null || pSocket.isClosed()) {
+			Logger.warn("Socket was null or closed when trying to serve thread!");
+			return worker;
+		}
+		
+		mWebRoot = pRoot;
+		
+		try {
+			
+			// Setup some socket bits and pieces
+			pSocket.setSoTimeout(mTimeout);
+			pSocket.setTcpNoDelay(true);
+			
+			BufferedReader reader =  new BufferedReader(new InputStreamReader(pSocket.getInputStream()), BUFFER_SIZE);
+			String request = reader.readLine();
+			
+			if (request == null || CLEANER_EMPTY_STRING.equals(request)) {
+				Logger.error("HTTP Request was null or zero-length");
+				//writeStatus(pSocket, HttpStatus.HTTP400);
+			} else {
+				Logger.debug("Request: " + request);
+			}
+			
+			// TODO: malformed request handler.
+			String[] tokens = request.split(REQUEST_SEPARATOR);
+						
+			HttpMethod method = HttpMethod.valueOf(tokens[0]);
+			
+			File file = new File(mWebRoot.getAbsolutePath() + tokens[1]);
+			
+			// TODO: configurable logic
+			
+			if (file.isDirectory()) {
+				worker = new DirectoryListingWorker();
+			} else {			
+				worker = new SimpleWorker();
+			}
+			worker.InitialiseWorker(method, file, pSocket);
 
+		} catch (SocketTimeoutException ste) {
+			Logger.error("Socket timed out after " + mTimeout + "ms when trying to serve thread");
+		} catch (IOException e) {
+			Logger.error("IOException when trying to serve thread: " + e.toString());
+			//writeStatus(pSocket, HttpStatus.HTTP500);
+		} 
+
+		return worker;
+		
+	}
+	
+	/**
+	 * <p>
+	 * Take the requested resource and clean anything out which might cause a problem, such as ".." etc.
+	 * </p>
+	 * @param pResource String to clean
+	 * @return Cleaned string
+	 */
+	protected static String cleanResource(String pResource) {
+		String result = pResource.replace(CLEANER_DOUBLE_DOT, CLEANER_EMPTY_STRING);
+		result = result.replace(CLEANER_DOUBLE_SLASH, CLEANER_SINGLE_SLASH);
+		
+		return result;
+	}
+	
 	/**
 	 * <p>
 	 * Given the data and the socket, write the response to the client.  Will automatically provide headers for

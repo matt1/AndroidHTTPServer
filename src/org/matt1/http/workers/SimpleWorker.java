@@ -1,21 +1,18 @@
 package org.matt1.http.workers;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.List;
 import java.util.Vector;
 
+import org.matt1.http.utils.HttpMethod;
+import org.matt1.http.utils.HttpStatus;
 import org.matt1.http.utils.headers.ContentTypeHttpHeader;
 import org.matt1.http.utils.headers.HttpHeader;
-import org.matt1.http.utils.response.HttpStatus;
 import org.matt1.utils.Logger;
 
-import android.os.Handler;
 import android.os.Looper;
 import android.webkit.MimeTypeMap;
 
@@ -28,37 +25,15 @@ import android.webkit.MimeTypeMap;
  */
 public class SimpleWorker extends AbstractWorker {
 
-	public Handler mHandler;
+	private File mResource;
 	private Socket mSocket;
-	private int mTimeout = 30000;
-	private static final int BUFFER_SIZE = 8192;
-	private static File wwwRoot;
+	private HttpMethod mMethod;
 	
-	/** Static mime map as this is a really expensive operation */
-	private static final MimeTypeMap mMimeTypeMap = MimeTypeMap.getSingleton();
-	
-	/** Constants for Android string performance optimisations */
-	private static final String METHOD_GET = "GET";	
-	private static final String REQUEST_SEPARATOR = " ";
-	private static final String DEAFUALT_MIMETYPE = "text/html";
-	private static final String CLEANER_DOUBLE_DOT = "..";
-	private static final String CLEANER_DOUBLE_SLASH = "//";
-	private static final String CLEANER_SINGLE_SLASH = "/";
-	private static final String CLEANER_EMPTY_STRING = "";
-	private static final String NULL = "null";
-	
-
-
 	@Override
-	public void InitialiseWorker(Socket pSocket, File pRootDirectory) {
-		InitialiseWorker(pSocket, mTimeout, pRootDirectory);		
-	}
-
-	@Override
-	public void InitialiseWorker(Socket pSocket, int pTimeout,	File pRootDirectory) {
+	public void InitialiseWorker(HttpMethod pMethod, File pResource, Socket pSocket) {
+		mResource = pResource;
+		mMethod = pMethod;
 		mSocket = pSocket;
-		mTimeout = pTimeout;
-		wwwRoot = pRootDirectory;		
 	}
 	
 	@Override
@@ -75,47 +50,24 @@ public class SimpleWorker extends AbstractWorker {
 		
 		try {
 			
-			// Setup some socket bits and pieces
-			mSocket.setSoTimeout(mTimeout);
-			mSocket.setTcpNoDelay(true);
-			
-			BufferedReader reader =  new BufferedReader(new InputStreamReader(mSocket.getInputStream()), BUFFER_SIZE);
-			String request = reader.readLine();
-			
-			if (request == null || CLEANER_EMPTY_STRING.equals(request)) {
-				Logger.error("HTTP Request was null or zero-length");
-				writeStatus(mSocket, HttpStatus.HTTP400);
-			} else {
-				Logger.debug("Request: " + request);
-			}
-			
-			// TODO: malformed request handler.
-			String[] tokens = request.split(REQUEST_SEPARATOR);
-						
-			if (!tokens[0].equalsIgnoreCase(METHOD_GET)) {
+			if (mMethod != HttpMethod.GET) {
 				// Bad method
 				writeStatus(mSocket, HttpStatus.HTTP405);
 			} else {
-				// Good method
-				String resource = tokens[1];
-				
-				// TODO security
-				resource = cleanResource(resource);
-				
-				File file = new File(wwwRoot.getAbsolutePath() + resource);
-				if (!file.exists() || !file.canRead()) {
+								
+				if (!mResource.exists() || !mResource.canRead()) {
 					writeStatus(mSocket, HttpStatus.HTTP404);
 				} else {								
-					FileInputStream fileReader = new FileInputStream(file);
-					byte[] fileContent = new byte[(int) file.length()];
-					fileReader.read(fileContent, 0, (int) file.length());
+					FileInputStream fileReader = new FileInputStream(mResource);
+					byte[] fileContent = new byte[(int) mResource.length()];
+					fileReader.read(fileContent, 0, (int) mResource.length());
 					fileReader.close();
-					String ext = MimeTypeMap.getFileExtensionFromUrl(resource);
+					String ext = MimeTypeMap.getFileExtensionFromUrl(mResource.getAbsolutePath());
 					String type = mMimeTypeMap.getMimeTypeFromExtension(ext);
 					if (null == type || NULL.equals(type)) {
 						type = DEAFUALT_MIMETYPE;
 					}					
-					List<HttpHeader> headers = new Vector<HttpHeader>();
+					Vector<HttpHeader> headers = new Vector<HttpHeader>();
 					headers.add(new ContentTypeHttpHeader(type));					
 					writeResponse(fileContent, mSocket, headers, HttpStatus.HTTP200);
 				}
@@ -130,17 +82,5 @@ public class SimpleWorker extends AbstractWorker {
 
 	}
 
-	/**
-	 * <p>
-	 * Take the requested resource and clean anything out which might cause a problem, such as ".." etc.
-	 * </p>
-	 * @param pResource String to clean
-	 * @return Cleaned string
-	 */
-	protected String cleanResource(String pResource) {
-		String result = pResource.replace(CLEANER_DOUBLE_DOT, CLEANER_EMPTY_STRING);
-		result = result.replace(CLEANER_DOUBLE_SLASH, CLEANER_SINGLE_SLASH);
-		
-		return result;
-	}
+
 }
