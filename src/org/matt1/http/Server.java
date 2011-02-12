@@ -38,8 +38,8 @@ public class Server implements Runnable {
 	private Boolean mRunFlag;
 	private InetAddress mInterface;
 	
-	public Server(Boolean pRunFlag, InetAddress pInterface) {
-		mRunFlag = pRunFlag;
+	public Server(InetAddress pInterface) {
+		mRunFlag = true;
 		mInterface = pInterface;
 	}
 	

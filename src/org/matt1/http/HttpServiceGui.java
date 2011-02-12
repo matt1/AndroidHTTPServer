@@ -10,17 +10,21 @@ import java.util.List;
 import org.matt1.utils.Logger;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 public class HttpServiceGui extends Activity {
 
+	/** System vibration */
+	private Vibrator mVibration;
+	
 	private Server mHttpServer;
 	private Thread mServerThread;
-	private Boolean mRunFlag = true;
+
 	private List<InetAddress> mInterfaces = new ArrayList<InetAddress>();
 	
     @Override
@@ -34,6 +38,7 @@ public class HttpServiceGui extends Activity {
 		// start button
 		findViewById(R.id.start).setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {       
+		    	vibrate();
 		    	startServer();
 		    }
 		});
@@ -41,11 +46,18 @@ public class HttpServiceGui extends Activity {
 		// stop button
 		findViewById(R.id.stop).setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {       
+		    	vibrate();
 		    	stopServer();
 		    }
 		});
 		
+    	mVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		
         
+    }
+    
+    private void vibrate() {
+    	mVibration.vibrate(35);
     }
     
     private void updateStatus(String pMessage) {
@@ -58,7 +70,7 @@ public class HttpServiceGui extends Activity {
     	
     	updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
     	Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
-		mHttpServer = new Server(mRunFlag, mInterfaces.get(0));
+		mHttpServer = new Server(mInterfaces.get(0));
 		mServerThread = new Thread(mHttpServer);
 		mServerThread.start();
 		updateStatus("Server started on " + mInterfaces.get(0).getHostAddress() + ".");
@@ -73,8 +85,12 @@ public class HttpServiceGui extends Activity {
     }
     
     public void onStop() {
-    	mHttpServer.stop();
-    	mServerThread.interrupt();
+    	if (mHttpServer != null) {
+    		mHttpServer.stop();
+    	}
+    	if (mServerThread != null) {
+    		mServerThread.interrupt();
+    	}
     	super.onStop();
     }
    
