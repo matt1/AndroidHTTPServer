@@ -43,6 +43,16 @@ public class Server implements Runnable {
 		mInterface = pInterface;
 	}
 	
+	public void stop() {
+		try {
+			if (mSocket != null) {
+				mSocket.close();
+			}
+		} catch (IOException e) {
+			Logger.debug("IOException closing socket.");
+		}
+	}
+	
 	@Override
 	public void run() {
 		
@@ -76,14 +86,11 @@ public class Server implements Runnable {
 			mSocket = new ServerSocket(PORT, MAX_SOCKET_BACKLOG, mInterface);
 			Logger.debug("Listening on " +  PORT + ".  Ready to serve.");
 			
-			while (mRunFlag) {
-				
-				
+			while (mRunFlag) {							
 				workerSocket = mSocket.accept();	
 				AbstractWorker worker = AbstractWorker.getWorkerInstance(workerSocket, mWebRoot);
 				executorService.execute((Runnable) worker);
-				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());
-				
+				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());				
 			}
 			
 			Logger.debug("Server cleanly exited listen loop. Serving stopped.");
@@ -96,7 +103,7 @@ public class Server implements Runnable {
 				Logger.error("Also failed to close socket for failed executor!");
 			}
 		} catch (IOException e) {
-			Logger.error("Unexpected IOException starting server socket!");
+			Logger.error("Unexpected IOException on socket - thread might have be in the process of being killed?");
 		}
 	}
 

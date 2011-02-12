@@ -11,11 +11,15 @@ import org.matt1.utils.Logger;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 public class HttpServiceGui extends Activity {
 
 	private Server mHttpServer;
+	private Thread mServerThread;
 	private Boolean mRunFlag = true;
 	private List<InetAddress> mInterfaces = new ArrayList<InetAddress>();
 	
@@ -23,19 +27,54 @@ public class HttpServiceGui extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);      
         
-		getInterfaces();
-		Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
-		mHttpServer = new Server(mRunFlag, mInterfaces.get(0));
-		mHttpServer.run();
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         
-        TextView tv = new TextView(this);
-        tv.setText("Http Service has been started on " + mInterfaces.get(0).getHostAddress());
-        setContentView(tv);
+		setContentView(R.layout.main);
+        
+		// start button
+		findViewById(R.id.start).setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {       
+		    	startServer();
+		    }
+		});
+		        
+		// stop button
+		findViewById(R.id.stop).setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {       
+		    	stopServer();
+		    }
+		});
+		
         
     }
     
+    private void updateStatus(String pMessage) {
+    	((TextView)findViewById(R.id.status)).setText(pMessage);
+    }
+    
+    private void startServer() {
+    	updateStatus("Getting available network interfaces...");
+    	getInterfaces();
+    	
+    	updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
+    	Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
+		mHttpServer = new Server(mRunFlag, mInterfaces.get(0));
+		mServerThread = new Thread(mHttpServer);
+		mServerThread.start();
+		updateStatus("Server started on " + mInterfaces.get(0).getHostAddress() + ".");
+    }
+    
+
+    private void stopServer() {
+    	updateStatus("Stopping server ...");
+    	mHttpServer.stop();
+    	mServerThread.interrupt();
+		updateStatus("Server stopped.");
+    }
+    
     public void onStop() {
-    	mRunFlag = false;
+    	mHttpServer.stop();
+    	mServerThread.interrupt();
     	super.onStop();
     }
    

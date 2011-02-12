@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+   
+    <style name="Theme" parent="android:Theme"></style>
+
+	
+
+    <style name="TitleBar">
+        <item name="android:id">@+id/titleId</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">@dimen/titleHeight</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@color/titleBackground</item>
+    </style>
+    
+    <style name="TitleText">
+        <item name="android:textColor">@color/titleForeground</item>
+        <item name="android:textSize">15dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">8dip</item>
+    </style>
+    
+    <style name="Main">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@color/defaultBackground</item>
+    </style>
+    
+    <style name="MainText">
+        <item name="android:textColor">@color/defaultForeground</item>
+        <item name="android:textSize">15dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">8dip</item>
+    </style>
+    
+      <style name="MainButton">
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/defaultForeground</item>
+        <item name="android:background">@color/defaultBackground</item>
+    </style>
+
+</resources>
