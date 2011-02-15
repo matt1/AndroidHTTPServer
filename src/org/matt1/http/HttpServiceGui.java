@@ -52,8 +52,7 @@ public class HttpServiceGui extends Activity {
 		});
 		
     	mVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		
-        
+		       
     }
     
     private void vibrate() {
@@ -79,18 +78,17 @@ public class HttpServiceGui extends Activity {
 
     private void stopServer() {
     	updateStatus("Stopping server ...");
-    	mHttpServer.stop();
-    	mServerThread.interrupt();
-		updateStatus("Server stopped.");
-    }
-    
-    public void onStop() {
     	if (mHttpServer != null) {
     		mHttpServer.stop();
     	}
     	if (mServerThread != null) {
     		mServerThread.interrupt();
     	}
+		updateStatus("Server stopped.");
+    }
+    
+    public void onStop() {
+    	stopServer();
     	super.onStop();
     }
    
