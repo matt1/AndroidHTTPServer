@@ -5,10 +5,14 @@ _Multi-threaded HTTP server for Android devices_
 Android HTTP Server is a simple multi-threaded HTTP server designed to run on Android devices, including smart phones 
 and tablets.
 
+Currently there are two parts of the AndroidHTTPServer - the library project and the GUI project.  The library project is a
+standard Android Library project which can be included in normal Android apps.  The GUI project is an example of a normal
+Android app utilising the Android HTTP Server library, and demonstrates how to control the server via on-screen buttons etc.
+
 *Currently Android HTTP Server is in an early state of development and should not be considered ready for "prime time"*.
 However, as it currently stands it is able to stand-up to fairly vigorous multi-threaded benchmarking.  Early testing
-using JMeter indicates that when running on a standard HTC Wildfire (Single-core MSM7225 528MHz) device running 
-Android 2.2.1 it can serve a small test page at approximately 750 requests/min when debugging and approximately 2200 
+using JMeter indicates that when running on a standard HTC Wildfire (single-core MSM7225 528MHz) device running 
+Android 2.2.1 it can serve a small test page at approximately 700 requests/min when debugging and approximately 2000 
 requests/min when not debugging (based on 10 simultaneous JMeter threads - please check Test Plan.jmx for exact settings).  
 
 h2. Sources
