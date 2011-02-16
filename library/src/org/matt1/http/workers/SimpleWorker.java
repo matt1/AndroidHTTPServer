@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.URLDecoder;
 import java.util.Vector;
 
 import org.matt1.http.Server;
@@ -19,7 +20,8 @@ import android.webkit.MimeTypeMap;
 
 /**
  * <p>
- * A simple HTTP worker that provides basic file serving capabilities
+ * A very simple HTTP worker that provides basic file serving capabilities.  Could be optimised by reading in files
+ * in blocks rather than optimistically eating as much memory as it likes.
  * </p>
  * @author Matt
  *
@@ -57,7 +59,7 @@ public class SimpleWorker extends AbstractWorker {
 				writeStatus(mSocket, HttpStatus.HTTP405);
 			} else {
 						
-				mResource = new File(Server.getRoot() + mResourceString);
+				mResource = new File(Server.getRoot() + URLDecoder.decode(mResourceString));
 				
 				if (!mResource.exists() || !mResource.canRead()) {
 					writeStatus(mSocket, HttpStatus.HTTP404);

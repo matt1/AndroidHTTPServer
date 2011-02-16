@@ -2,6 +2,7 @@ package org.matt1.http.workers;
 
 import java.io.File;
 import java.net.Socket;
+import java.net.URLDecoder;
 import java.util.Vector;
 
 import org.matt1.http.Server;
@@ -52,7 +53,7 @@ public class DirectoryListingWorker extends AbstractWorker {
 				// Bad method
 				writeStatus(mSocket, HttpStatus.HTTP405);
 			} else {
-				mResource = new File(Server.getRoot() + mResourceString);
+				mResource = new File(Server.getRoot() + URLDecoder.decode(mResourceString));
 				
 				if (!mResource.exists() || !mResource.canRead()) {
 					writeStatus(mSocket, HttpStatus.HTTP404);
@@ -65,7 +66,7 @@ public class DirectoryListingWorker extends AbstractWorker {
 					
 					buffer.append("<h1>").append(mResourceString).append("</h1>");
 					
-					if (children.length == 0) {
+					if (children == null || children.length == 0) {
 						buffer.append("This directory has no files.");
 					} else {
 						for (File child : children) {
@@ -75,8 +76,7 @@ public class DirectoryListingWorker extends AbstractWorker {
 							} else {
 								buffer.append("<a href=\"").append(mResourceString).append(child.getName()).append("\">");
 							}
-							
-							
+														
 							buffer.append(child.getName());
 							buffer.append("</a><br />");
 							
