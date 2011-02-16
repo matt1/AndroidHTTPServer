@@ -71,10 +71,12 @@ public class DirectoryListingWorker extends AbstractWorker {
 						for (File child : children) {
 			
 							if (child.isDirectory()) {
-								buffer.append("[DIR] ");
+								buffer.append("[dir] <a href=\"").append(mResourceString).append(child.getName()).append("/\">");
+							} else {
+								buffer.append("<a href=\"").append(mResourceString).append(child.getName()).append("\">");
 							}
 							
-							buffer.append("<a href=\"").append(mResourceString).append(child.getName()).append("\">");
+							
 							buffer.append(child.getName());
 							buffer.append("</a><br />");
 							

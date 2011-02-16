@@ -26,7 +26,7 @@ public class Server implements Runnable {
 	private static final int MAX_SOCKET_BACKLOG = 80;
 	private static final int PORT = 8080;
 	
-	private static final File mWebRoot = new File("/sdcard/wwwroot");
+	private static final File mWebRoot = new File("/");
 	
 	public static final String SERVER_NAME = "AndroidHTTPServer (android/linux)";
 	
