@@ -71,7 +71,7 @@ public class HttpServiceGui extends Activity {
     	
     	updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
     	Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
-		mHttpServer = new Server(mInterfaces.get(0));
+		mHttpServer = new Server(mInterfaces.get(0), "/sdcard/wwwroot");
 		mServerThread = new Thread(mHttpServer);
 		mServerThread.start();
 		updateStatus("Server started on " + mInterfaces.get(0).getHostAddress() + ".");

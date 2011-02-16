@@ -36,10 +36,5 @@
 			<type>2</type>
 			<locationURI>_android_AndroidHTTPServer/src</locationURI>
 		</link>
-		<link>
-			<name>AndroidHTTPServerJar</name>
-			<type>2</type>
-			<locationURI>_android_AndroidHTTPServerJar/src</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

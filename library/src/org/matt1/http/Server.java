@@ -14,11 +14,15 @@ import java.util.concurrent.TimeUnit;
 import org.matt1.http.workers.AbstractWorker;
 import org.matt1.utils.Logger;
 
-import android.os.Handler;
-
+/**
+ * <p>
+ * The main "server" class that initialises the server and handles incoming connections.  It should always be started
+ * as a separate thread .
+ * </p>
+ * @author Matt
+ *
+ */
 public class Server implements Runnable {
-
-	public Handler mHandler;
 	
 	private static final int INITIAL_THREADS = 3;
 	private static final int MAXIMUM_THREADS = 10;
@@ -26,7 +30,7 @@ public class Server implements Runnable {
 	private static final int MAX_SOCKET_BACKLOG = 80;
 	private static final int PORT = 8080;
 	
-	private static final File mWebRoot = new File("/");
+	private static File mWebRoot;
 	
 	public static final String SERVER_NAME = "AndroidHTTPServer (android/linux)";
 	
@@ -38,11 +42,23 @@ public class Server implements Runnable {
 	private Boolean mRunFlag;
 	private InetAddress mInterface;
 	
-	public Server(InetAddress pInterface) {
+	/**
+	 * <p>
+	 * Creates a new server
+	 * </p>
+	 * @param pInterface
+	 */
+	public Server(InetAddress pInterface, String pRoot) {
 		mRunFlag = true;
 		mInterface = pInterface;
+		mWebRoot = new File(pRoot);
 	}
 	
+	/**
+	 * <p>
+	 * Stops the server
+	 * </p>
+	 */
 	public void stop() {
 		try {
 			if (mSocket != null) {
@@ -53,6 +69,11 @@ public class Server implements Runnable {
 		}
 	}
 	
+	/**
+	 * <p>
+	 * Starts the server
+	 * </p>
+	 */
 	public void run() {
 		
 		Logger.debug("Server thread initialised!  Attempting to start server.");
