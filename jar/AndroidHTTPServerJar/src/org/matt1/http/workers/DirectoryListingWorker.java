@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.Socket;
 import java.util.Vector;
 
+import org.matt1.http.Server;
 import org.matt1.http.utils.HttpMethod;
 import org.matt1.http.utils.HttpStatus;
 import org.matt1.http.utils.headers.ContentTypeHttpHeader;
@@ -25,10 +26,11 @@ public class DirectoryListingWorker extends AbstractWorker {
 	private File mResource;
 	private Socket mSocket;
 	private HttpMethod mMethod;
+	private String mResourceString;
 	
 	@Override
-	public void InitialiseWorker(HttpMethod pMethod, File pResource, Socket pSocket) {
-		mResource = pResource;
+	public void InitialiseWorker(HttpMethod pMethod, String pResource, Socket pSocket) {
+		mResourceString = pResource;
 		mMethod = pMethod;
 		mSocket = pSocket;
 	}
@@ -44,52 +46,55 @@ public class DirectoryListingWorker extends AbstractWorker {
 			Logger.warn("Socket was null or closed when trying to serve thread!");
 			return;
 		}
-		
-		if (mMethod != HttpMethod.GET) {
-			// Bad method
-			writeStatus(mSocket, HttpStatus.HTTP405);
-		} else {
-							
-			if (!mResource.exists() || !mResource.canRead()) {
-				writeStatus(mSocket, HttpStatus.HTTP404);
-			} else if (!mResource.isDirectory()) {
-				writeStatus(mSocket, HttpStatus.HTTP500);				
-			} else {	
+
+		try {
+			if (mMethod != HttpMethod.GET) {
+				// Bad method
+				writeStatus(mSocket, HttpStatus.HTTP405);
+			} else {
+				mResource = new File(Server.getRoot() + mResourceString);
 				
-				File[] children = mResource.listFiles();
-				StringBuffer buffer = new StringBuffer();
-				
-				buffer.append("<h1>").append(mResource.getPath()).append("</h1>");
-				
-				if (mResource.getParentFile() != null) {
-					buffer.append("<a href=\"").append(mResource.getParentFile().getName())
-					.append("\">").append(mResource.getParentFile()).append("</a><br />");
-				}
-				
-				for (File child : children) {
+				if (!mResource.exists() || !mResource.canRead()) {
+					writeStatus(mSocket, HttpStatus.HTTP404);
+				} else if (!mResource.isDirectory()) {
+					writeStatus(mSocket, HttpStatus.HTTP500);				
+				} else {	
 					
-										
-					if (child.isDirectory()) {
-						buffer.append("<a href=\"").append(child.getPath())
-						.append("\">").append("[DIR]").append(child.getName()).append("</a>");
+					File[] children = mResource.listFiles();
+					StringBuffer buffer = new StringBuffer();
+					
+					buffer.append("<h1>").append(mResourceString).append("</h1>");
+					
+					if (children.length == 0) {
+						buffer.append("This directory has no files.");
 					} else {
-						buffer.append("<a href=\"").append(child.getName())
-						.append("\">").append(child.getName()).append("</a>");
+						for (File child : children) {
+			
+							if (child.isDirectory()) {
+								buffer.append("[DIR] ");
+							}
+							
+							buffer.append("<a href=\"").append(mResourceString).append(child.getName()).append("\">");
+							buffer.append(child.getName());
+							buffer.append("</a><br />");
+							
+						}
 					}
 					
-					buffer.append("<br />");
-					
+					String type = DEAFUALT_MIMETYPE;
+										
+					Vector<HttpHeader> headers = new Vector<HttpHeader>();
+					headers.add(new ContentTypeHttpHeader(type));					
+					writeResponse(ByteUtils.getBytesFromString(buffer.toString()), mSocket, headers, HttpStatus.HTTP200);
 				}
-				
-				String type = DEAFUALT_MIMETYPE;
-									
-				Vector<HttpHeader> headers = new Vector<HttpHeader>();
-				headers.add(new ContentTypeHttpHeader(type));					
-				writeResponse(ByteUtils.getBytesFromString(buffer.toString()), mSocket, headers, HttpStatus.HTTP200);
-			}
-		} 
-
-	}
-
+			}			
+		} catch (OutOfMemoryError e) {
+			Logger.error("OutOfMemoryError when trying to serve " + mResourceString  + e.toString());
+			writeStatus(mSocket, HttpStatus.HTTP503);
+		}
+	} 
 
 }
+
+
+

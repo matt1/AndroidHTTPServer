@@ -1,6 +1,5 @@
 package org.matt1.http.workers;
 
-import java.io.File;
 import java.net.Socket;
 
 import org.matt1.http.utils.HttpMethod;
@@ -19,22 +18,18 @@ import android.os.Looper;
  */
 public class ErrorWorker extends AbstractWorker {
 
-	protected File mResource;
+
 	protected Socket mSocket;
-	protected HttpMethod mMethod;
 	protected HttpStatus mStatusCode;
 	
 	@Override
-	public void InitialiseWorker(HttpMethod pMethod, File pResource, Socket pSocket) {
-		mResource = pResource;
-		mMethod = pMethod;
+	public void InitialiseWorker(HttpMethod pMethod, String pResource, Socket pSocket) {		
 		mSocket = pSocket;
 	}
 	
 	public void SetError(HttpStatus pStatCode) {
 		mStatusCode = pStatCode;
-	}
-	
+	}	
 	
 	@Override
 	public void run() {
@@ -51,6 +46,5 @@ public class ErrorWorker extends AbstractWorker {
 		writeStatus(mSocket, mStatusCode);
 
 	}
-
 
 }

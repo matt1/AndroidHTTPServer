@@ -106,4 +106,14 @@ public class Server implements Runnable {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Gets the root File object.
+	 * </p>
+	 * @return
+	 */
+	public static synchronized File getRoot() {
+		return mWebRoot;
+	}
+	
 }

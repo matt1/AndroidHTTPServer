@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Vector;
 
+import org.matt1.http.Server;
 import org.matt1.http.utils.HttpMethod;
 import org.matt1.http.utils.HttpStatus;
 import org.matt1.http.utils.headers.ContentTypeHttpHeader;
@@ -28,10 +29,11 @@ public class SimpleWorker extends AbstractWorker {
 	private File mResource;
 	private Socket mSocket;
 	private HttpMethod mMethod;
+	private String mResourceString; 
 	
 	@Override
-	public void InitialiseWorker(HttpMethod pMethod, File pResource, Socket pSocket) {
-		mResource = pResource;
+	public void InitialiseWorker(HttpMethod pMethod, String pResource, Socket pSocket) {
+		mResourceString = pResource;
 		mMethod = pMethod;
 		mSocket = pSocket;
 	}
@@ -54,7 +56,9 @@ public class SimpleWorker extends AbstractWorker {
 				// Bad method
 				writeStatus(mSocket, HttpStatus.HTTP405);
 			} else {
-								
+						
+				mResource = new File(Server.getRoot() + mResourceString);
+				
 				if (!mResource.exists() || !mResource.canRead()) {
 					writeStatus(mSocket, HttpStatus.HTTP404);
 				} else {								
@@ -76,9 +80,12 @@ public class SimpleWorker extends AbstractWorker {
 		} catch (SocketTimeoutException ste) {
 			Logger.error("Socket timed out after " + mTimeout + "ms when trying to serve thread");
 		} catch (IOException e) {
-			Logger.error("IOException when trying to serve thread: " + e.toString());
+			Logger.error("IOException when trying to serve " + mResourceString + e.toString());
 			writeStatus(mSocket, HttpStatus.HTTP500);
-		} 
+		} catch (OutOfMemoryError e) {
+			Logger.error("OutOfMemoryError when trying to serve " + mResourceString  + e.toString());
+			writeStatus(mSocket, HttpStatus.HTTP503);
+		}
 
 	}
 

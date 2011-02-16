@@ -36,8 +36,6 @@ public abstract class AbstractWorker implements Runnable {
 	protected static final int BUFFER_SIZE = 8192;	
 	protected static final int mTimeout = 30000;
 	
-	private static File mWebRoot;
-	
 	/** Constants for Android string performance optimisations */
 	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private static final String HTTP_VERSION = "HTTP/1.0 ";
@@ -70,7 +68,7 @@ public abstract class AbstractWorker implements Runnable {
 	 * @param pResource Resource
 	 * @param pSocket The socket to write the response to
 	 */
-	public abstract void InitialiseWorker(HttpMethod pMethod, File pResource, Socket pSocket);
+	public abstract void InitialiseWorker(HttpMethod pMethod, String pResource, Socket pSocket);
 	
 	/**
 	 * <p>
@@ -86,8 +84,6 @@ public abstract class AbstractWorker implements Runnable {
 			Logger.warn("Socket was null or closed when trying to serve thread!");
 			return worker;
 		}
-		
-		mWebRoot = pRoot;
 		
 		try {
 			
@@ -110,17 +106,16 @@ public abstract class AbstractWorker implements Runnable {
 				String[] tokens = request.split(REQUEST_SEPARATOR);
 							
 				HttpMethod method = HttpMethod.valueOf(tokens[0]);
-				
-				File file = new File(mWebRoot.getAbsolutePath() + tokens[1]);
+				String resource = tokens[1];
 				
 				// TODO: configurable logic
 				
-				if (file.isDirectory()) {
+				if (resource.endsWith("/")) {
 					worker = new DirectoryListingWorker();
 				} else {			
 					worker = new SimpleWorker();
 				}
-				worker.InitialiseWorker(method, file, pSocket);
+				worker.InitialiseWorker(method, resource, pSocket);
 			}
 
 		} catch (SocketTimeoutException ste) {

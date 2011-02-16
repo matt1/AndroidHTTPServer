@@ -34,7 +34,10 @@ public enum HttpStatus {
 	HTTP500("500 - Internal Server Error"),
 	
 	/** Not implemented */
-	HTTP501("501 - Not Implemented");
+	HTTP501("501 - Not Implemented"), 
+	
+	/** Service unavailable */
+	HTTP503("503 - Service unavailable");
 	
 	private String mDescription;
 	
