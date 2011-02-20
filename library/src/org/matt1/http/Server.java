@@ -28,7 +28,6 @@ public class Server implements Runnable {
 	private static final int MAXIMUM_THREADS = 10;
 	private static final int QUEUE_TIMEOUT = 30000;
 	private static final int MAX_SOCKET_BACKLOG = 80;
-	private static final int PORT = 8080;
 	
 	private static File mWebRoot;
 	
@@ -41,6 +40,7 @@ public class Server implements Runnable {
 	
 	private Boolean mRunFlag;
 	private InetAddress mInterface;
+	private int mPort;
 	
 	/**
 	 * <p>
@@ -48,10 +48,11 @@ public class Server implements Runnable {
 	 * </p>
 	 * @param pInterface
 	 */
-	public Server(InetAddress pInterface, String pRoot) {
+	public Server(InetAddress pInterface, int pPort, String pRoot) {
 		mRunFlag = true;
 		mInterface = pInterface;
 		mWebRoot = new File(pRoot);
+		mPort = pPort;
 	}
 	
 	/**
@@ -103,8 +104,8 @@ public class Server implements Runnable {
         
 		try {
 			
-			mSocket = new ServerSocket(PORT, MAX_SOCKET_BACKLOG, mInterface);
-			Logger.debug("Listening on " +  PORT + ".  Ready to serve.");
+			mSocket = new ServerSocket(mPort, MAX_SOCKET_BACKLOG, mInterface);
+			Logger.debug("Listening on " +  mPort + ".  Ready to serve.");
 			
 			while (mRunFlag) {							
 				workerSocket = mSocket.accept();	

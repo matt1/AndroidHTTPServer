@@ -2,6 +2,7 @@ package org.matt1.http.workers.simple.implementations;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.util.Arrays;
 
 import org.matt1.http.Server;
 import org.matt1.http.utils.HttpMethod;
@@ -57,6 +58,7 @@ public class SimpleDirectoryWorker implements SimpleWorkerInterface {
 					if (children == null || children.length == 0) {
 						buffer.append("This directory has no files.");
 					} else {
+						Arrays.sort(children);
 						for (File child : children) {
 			
 							if (child.isDirectory()) {
