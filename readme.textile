@@ -1,11 +1,14 @@
 h1. Android HTTP Server
 
-_Multi-threaded HTTP server for Android devices_
+_Multi-threaded HTTP server library for Android devices_
 
-Android HTTP Server is a simple multi-threaded HTTP server designed to run on Android devices, including smart phones 
-and tablets.
+Android HTTP Server is a multi-threaded HTTP server library for Android devices, including smart phones and tablets.  It is 
+designed to be "dropped-in" to new or existing apps to rapidly add HTTP handling capabilities, and offers a flexible
+plugin architecture to allow apps to create their own custom HTTP serving capabilities - for example processing custom file
+types or handling unique programmtic responses to specially creafted HTTP requests (e.g. a custom handler could access a device's
+sensors and return something interesting)
 
-Currently there are two parts of the AndroidHTTPServer - the library project and the GUI project.  The library project is a
+Currently there are two parts of the AndroidHTTPServer project - the library project itself and the GUI project.  The library project is a
 standard Android Library project which can be included in normal Android apps.  The GUI project is an example of a normal
 Android app utilising the Android HTTP Server library, and demonstrates how to control the server via on-screen buttons etc.
 
@@ -17,7 +20,7 @@ requests/min when not debugging (based on 10 simultaneous JMeter threads - pleas
 
 h2. Sources
 
-Uses icons from the Tango Project (http://tango-project.org/) which have been placed in the public domain.
+The GUI uses icons from the Tango Project (http://tango-project.org/) which have been placed in the public domain.
 
 h2. License
 
