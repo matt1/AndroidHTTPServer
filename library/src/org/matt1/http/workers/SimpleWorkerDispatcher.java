@@ -9,7 +9,7 @@ import org.matt1.http.utils.headers.ContentTypeHttpHeader;
 import org.matt1.http.utils.headers.HttpHeader;
 import org.matt1.http.workers.simple.SimpleRequest;
 import org.matt1.http.workers.simple.SimpleResponse;
-import org.matt1.http.workers.simple.SimpleWorker;
+import org.matt1.http.workers.simple.SimpleWorkerInterface;
 import org.matt1.http.workers.simple.SimpleWorkerException;
 import org.matt1.http.workers.simple.implementations.SimpleDirectoryWorker;
 import org.matt1.http.workers.simple.implementations.SimpleFileWorker;
@@ -48,7 +48,7 @@ public class SimpleWorkerDispatcher extends AbstractWorker {
 		}
 		
 		try {
-				SimpleWorker sp;
+				SimpleWorkerInterface sp;
 				
 				if (mRequest.getResource().endsWith("/")) {
 					sp = new SimpleDirectoryWorker();

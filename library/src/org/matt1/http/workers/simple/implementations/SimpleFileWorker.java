@@ -10,7 +10,7 @@ import org.matt1.http.utils.HttpMethod;
 import org.matt1.http.utils.HttpStatus;
 import org.matt1.http.workers.simple.SimpleRequest;
 import org.matt1.http.workers.simple.SimpleResponse;
-import org.matt1.http.workers.simple.SimpleWorker;
+import org.matt1.http.workers.simple.SimpleWorkerInterface;
 import org.matt1.http.workers.simple.SimpleWorkerException;
 import org.matt1.utils.Logger;
 
@@ -24,7 +24,7 @@ import android.webkit.MimeTypeMap;
  * @author Matt
  *
  */
-public class SimpleFileWorker implements SimpleWorker {
+public class SimpleFileWorker implements SimpleWorkerInterface {
 
 	
 	

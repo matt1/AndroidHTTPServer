@@ -8,7 +8,7 @@ package org.matt1.http.workers.simple;
  * @author Matt
  *
  */
-public interface SimpleWorker {
+public interface SimpleWorkerInterface {
 
 	/**
 	 * <p>
