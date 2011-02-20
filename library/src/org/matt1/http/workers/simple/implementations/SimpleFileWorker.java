@@ -26,8 +26,6 @@ import android.webkit.MimeTypeMap;
  */
 public class SimpleFileWorker implements SimpleWorkerInterface {
 
-	
-	
 	/**
 	 * <p>
 	 * Process the request and serves back the requested file with the appropriate mimetype

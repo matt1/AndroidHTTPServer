@@ -22,8 +22,6 @@ import org.matt1.utils.Logger;
  *
  */
 public class SimpleDirectoryWorker implements SimpleWorkerInterface {
-
-
 	
 	/**
 	 * <p>

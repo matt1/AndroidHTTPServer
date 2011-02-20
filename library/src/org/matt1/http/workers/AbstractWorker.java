@@ -120,7 +120,7 @@ public abstract class AbstractWorker implements Runnable {
 			worker = new ErrorWorker();
 			worker.InitialiseWorker(null, null, pSocket);
 			((ErrorWorker) worker).SetError(HttpStatus.HTTP500);
-		} 
+		}
 
 		return worker;
 		

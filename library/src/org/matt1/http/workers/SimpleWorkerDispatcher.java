@@ -1,5 +1,6 @@
 package org.matt1.http.workers;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.Vector;
 
@@ -35,6 +36,11 @@ public class SimpleWorkerDispatcher extends AbstractWorker {
 		mSocket = pSocket;
 	}
 	
+	/**
+	 * <p>
+	 * Takes a request from the AbstractWorker and calls the appropriate SimpleWorkerImplementation
+	 * </p>
+	 */
 	@Override
 	public void run() {
 		
@@ -62,13 +68,17 @@ public class SimpleWorkerDispatcher extends AbstractWorker {
 				headers.add(new ContentTypeHttpHeader(response.getMimeType()));
 				
 				writeResponse(response.getResponse(), mSocket, headers, HttpStatus.HTTP200);
+				if (mSocket != null && !mSocket.isClosed()) {
+					mSocket.close();
+				}
 			
 		} catch (SimpleWorkerException e) {
 			Logger.debug("PackWorker threw exception: " + e.getStatus().toString());
 			writeStatus(mSocket, e.getStatus());
+		} catch (IOException e) {
+			Logger.debug("IOException when trying to close SimpleWorker socket.");
 		}
 
 	}
-
 	
 }
