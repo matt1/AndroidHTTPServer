@@ -108,13 +108,8 @@ public abstract class AbstractWorker implements Runnable {
 				HttpMethod method = HttpMethod.valueOf(tokens[0]);
 				String resource = tokens[1];
 				
-				// TODO: configurable logic
-				
-				if (resource.endsWith("/")) {
-					worker = new DirectoryListingWorker();
-				} else {			
-					worker = new SimpleWorker();
-				}
+				// TODO: configurable logic				
+				worker = new SimpleWorkerDispatcher();			
 				worker.InitialiseWorker(method, resource, pSocket);
 			}
 
