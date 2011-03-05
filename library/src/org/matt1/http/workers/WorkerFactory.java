@@ -53,6 +53,16 @@ public class WorkerFactory {
 	
 	/**
 	 * <p>
+	 * Removes a worker to the workers collection. 
+	 * </p>
+	 * @param pPattern
+	 */
+	public void removeWorker(Pattern pPattern) {		
+		mWorkers.remove(pPattern);		
+	}	
+	
+	/**
+	 * <p>
 	 * Selects an appropriate worker based on the requested resource.  If nothing suitable is found then the
 	 * default SimpleWrokerDispatcher is returned.
 	 * </p>
