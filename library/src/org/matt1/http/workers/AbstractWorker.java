@@ -108,22 +108,40 @@ public abstract class AbstractWorker implements Runnable {
 				HttpMethod method = HttpMethod.valueOf(tokens[0]);
 				String resource = tokens[1];
 				
-				// TODO: configurable logic				
-				worker = new SimpleWorkerDispatcher();			
+				worker = WorkerFactory.getInstance().getWorker(resource);							
 				worker.InitialiseWorker(method, resource, pSocket);
 			}
 
 		} catch (SocketTimeoutException ste) {
 			Logger.error("Socket timed out after " + mTimeout + "ms when trying to serve thread");
+			// No socket so don't bother creating error worker.
 		} catch (IOException e) {
 			Logger.error("IOException when trying to serve thread: " + e.toString());
-			worker = new ErrorWorker();
-			worker.InitialiseWorker(null, null, pSocket);
-			((ErrorWorker) worker).SetError(HttpStatus.HTTP500);
+			worker.createErrorWorker(HttpStatus.HTTP500, pSocket);
+		} catch (IllegalAccessException e) {
+			Logger.error("IllegalAccessException when trying to create Worker: " + e.toString());
+			worker.createErrorWorker(HttpStatus.HTTP500, pSocket);
+		} catch (InstantiationException e) {
+			Logger.error("InstantiationException when trying to create Worker: " + e.toString());
+			worker.createErrorWorker(HttpStatus.HTTP500, pSocket);
 		}
 
 		return worker;
 		
+	}
+	
+	/**
+	 * <p>
+	 * Create a new error worker in case things went wrong
+	 * </p>
+	 * @param pError
+	 * @param pSocket
+	 */
+	private ErrorWorker createErrorWorker(HttpStatus pError, Socket pSocket) {
+		ErrorWorker result = new ErrorWorker();
+		result.InitialiseWorker(null, null, pSocket);
+		result.SetError(pError);
+		return result;
 	}
 	
 	/**
