@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    
+    <!-- Title Bar is horizontal with a single text view -->
+    <LinearLayout style="@style/TitleBar"
+            android:layout_width="fill_parent"
+        	android:layout_height="wrap_content">
+    	<TextView 		
+    		style="@style/TitleText"
+    		android:layout_width="fill_parent" 
+		    android:layout_height="wrap_content" 
+		    android:text="Android HTTP Server" />
+    
+    </LinearLayout>
+    
+    <!-- Main content is vertical linear, with a horizontal linear for control buttons followed by a horizontal 
+    text view -->
+    <LinearLayout style="@style/Main">
+       
+		    
+		    <LinearLayout
+           		android:orientation="horizontal"
+            	android:layout_width="fill_parent"
+            	android:layout_height="150px"
+            	android:layout_weight="1">
+
+	            <Button android:id="@+id/start"
+	            android:clickable="true"
+	                style="@style/MainButton"
+	                android:text="Start server"
+	                android:drawableTop="@drawable/start"/>
+	                
+	            <Button android:id="@+id/stop"
+	            android:hapticFeedbackEnabled="true"
+	                style="@style/MainButton"
+	                android:text="Stop server"
+	                android:drawableTop="@drawable/stop"/>
+
+        	</LinearLayout>
+        	
+        	<EditText  
+	        	style="@style/MainText"
+	       		android:id="@+id/status"
+	       		android:layout_weight="1"
+		    	android:layout_width="fill_parent" 
+		    	android:layout_height="fill_parent" 
+		    	android:gravity="top"
+		    	android:cursorVisible="false" 
+		    	android:editable="false" 
+		    />
+        
+	</LinearLayout>
+
+</LinearLayout>
