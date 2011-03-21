@@ -1,6 +1,8 @@
 h1. Android HTTP Server
 
 _Multi-threaded HTTP server library for Android devices_
+!=http://matt1.github.com/AndroidHTTPServer/gui.png(GUI project which utilises the library project)!
+
 
 AndroidHTTPServer is a multi-threaded HTTP web server library for Android devices, including smart phones and tablets.  It is designed to be "dropped-in" to new or existing apps to rapidly add HTTP handling capabilities, and offers a flexible plugin architecture to allow apps to create their own custom HTTP serving capabilities - for example processing custom file types or handling unique programmatic responses such as reading the device's GPS or accelerometer sensors and responding with something interesting.
 
