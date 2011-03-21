@@ -11,6 +11,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.matt1.http.events.ServerEventListener;
+import org.matt1.http.events.WorkerEventListener;
 import org.matt1.http.workers.AbstractWorker;
 import org.matt1.utils.Logger;
 
@@ -41,6 +43,10 @@ public class Server implements Runnable {
 	private Boolean mRunFlag;
 	private InetAddress mInterface;
 	private int mPort;
+	
+	/** Event handling */
+	private ServerEventListener mRequestListener = null;
+	private WorkerEventListener mWorkerRequestListener = null;
 	
 	/**
 	 * <p>
@@ -99,17 +105,22 @@ public class Server implements Runnable {
     			QUEUE_TIMEOUT, 
     			TimeUnit.MILLISECONDS, 
     			queue);
-
     	Logger.debug("Thread pool constructed, starting server socket...");
         
+    	initEventHandling();
+    	
 		try {
 			
 			mSocket = new ServerSocket(mPort, MAX_SOCKET_BACKLOG, mInterface);
+			if (mRequestListener != null) {
+				mRequestListener.onServerReady(mSocket.getInetAddress().getHostAddress(), mPort);
+			}
 			Logger.debug("Listening on " +  mPort + ".  Ready to serve.");
 			
 			while (mRunFlag) {							
 				workerSocket = mSocket.accept();	
-				AbstractWorker worker = AbstractWorker.getWorkerInstance(workerSocket, mWebRoot);
+				AbstractWorker worker = AbstractWorker.getWorkerInstance(workerSocket, mWebRoot);				
+				worker.setRequestListener(mWorkerRequestListener);
 				executorService.execute((Runnable) worker);
 				Logger.debug("Got a new request in from " + workerSocket.getInetAddress().getHostAddress());				
 			}
@@ -136,6 +147,35 @@ public class Server implements Runnable {
 	 */
 	public static synchronized File getRoot() {
 		return mWebRoot;
+	}
+	
+	/**
+	 * <p>
+	 * Sets up event handlers - events from workers will be thrown up to the GUI as appropriate.
+	 * </p>
+	 */
+	private void initEventHandling() {
+								
+		mWorkerRequestListener = new WorkerEventListener() {			
+			public void onRequestServed(String pResource) {
+				if (mRequestListener != null) {
+					mRequestListener.onRequestServed(pResource);		
+				}
+			}			
+			public void onRequestError(String pResource) {
+				if (mRequestListener != null) {
+					mRequestListener.onRequestError(pResource);
+				}
+			}
+		};	
+	}
+	
+	public ServerEventListener getRequestListener() {
+		return mRequestListener;
+	}
+
+	public void setRequestListener(ServerEventListener pRequestListener) {
+		mRequestListener = pRequestListener;
 	}
 	
 }

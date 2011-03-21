@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Vector;
 
+import org.matt1.http.events.WorkerEventListener;
 import org.matt1.http.utils.HttpMethod;
 import org.matt1.http.utils.HttpStatus;
 import org.matt1.http.utils.headers.ContentTypeHttpHeader;
@@ -51,7 +52,9 @@ public abstract class AbstractWorker implements Runnable {
 	/** Static mime map as this is a really expensive operation */
 	protected static final MimeTypeMap mMimeTypeMap = MimeTypeMap.getSingleton();
 
-
+	// Event for requests
+	protected WorkerEventListener mRequestListener = null;
+	
 	/**
 	 * <p>
 	 * Method called to process the request on its own thread.
@@ -107,7 +110,7 @@ public abstract class AbstractWorker implements Runnable {
 							
 				HttpMethod method = HttpMethod.valueOf(tokens[0]);
 				String resource = tokens[1];
-				
+
 				worker = WorkerFactory.getInstance().getWorker(resource);							
 				worker.InitialiseWorker(method, resource, pSocket);
 			}
@@ -221,4 +224,36 @@ public abstract class AbstractWorker implements Runnable {
 		writeResponse(pStatus.getDescription(), pSocket, pStatus);
 	}
 
+	/**
+	 * <p>
+	 * Triggers the request event if the handler is not null
+	 * </p>
+	 * @param pResource
+	 */
+	protected void triggerRequestServedEvent(String pResource) {
+		if (mRequestListener != null) {
+			mRequestListener.onRequestServed(pResource);
+		}
+	}
+	
+	/**
+	 * <p>
+	 * Triggers the  error event if the handler is not null
+	 * </p>
+	 * @param pResource
+	 */
+	protected void triggerRequestErrorEvent(String pResource) {
+		if (mRequestListener != null) {
+			mRequestListener.onRequestError(pResource);
+		}
+	}	
+	
+	public WorkerEventListener getRequestListener() {
+		return mRequestListener;
+	}
+
+	public void setRequestListener(WorkerEventListener pRequestListener) {
+		mRequestListener = pRequestListener;
+	}
+	
 }

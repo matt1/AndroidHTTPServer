@@ -42,7 +42,10 @@ public class ErrorWorker extends AbstractWorker {
 			Logger.warn("Socket was null or closed when trying to serve thread!");
 			return;
 		}
-		 
+		
+		// Trigger event
+		triggerRequestErrorEvent(null);
+		
 		writeStatus(mSocket, mStatusCode);
 
 	}

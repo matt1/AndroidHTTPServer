@@ -17,22 +17,15 @@
     
     </LinearLayout>
     
-    <!-- Main content is vertical linear, with a horizontal text view followed by a horizontal linear for control
-    buttons -->
+    <!-- Main content is vertical linear, with a horizontal linear for control buttons followed by a horizontal 
+    text view -->
     <LinearLayout style="@style/Main">
        
-	       <TextView  
-	        	style="@style/MainText"
-	       		android:id="@+id/status"
-		    	android:layout_width="fill_parent" 
-		    	android:layout_height="wrap_content" 
-		    	android:text="Tap on Start Server below to start serving"
-		    />
 		    
 		    <LinearLayout
            		android:orientation="horizontal"
             	android:layout_width="fill_parent"
-            	android:layout_height="wrap_content"
+            	android:layout_height="150px"
             	android:layout_weight="1">
 
 	            <Button android:id="@+id/start"
@@ -48,6 +41,17 @@
 	                android:drawableTop="@drawable/stop"/>
 
         	</LinearLayout>
+        	
+        	<EditText  
+	        	style="@style/MainText"
+	       		android:id="@+id/status"
+	       		android:layout_weight="1"
+		    	android:layout_width="fill_parent" 
+		    	android:layout_height="fill_parent" 
+		    	android:gravity="top"
+		    	android:cursorVisible="false" 
+		    	android:editable="false" 
+		    />
         
 	</LinearLayout>
 

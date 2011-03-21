@@ -67,6 +67,9 @@ public class SimpleWorkerDispatcher extends AbstractWorker {
 				Vector<HttpHeader> headers = new Vector<HttpHeader>();
 				headers.add(new ContentTypeHttpHeader(response.getMimeType()));
 				
+				// Trigger event
+				triggerRequestServedEvent(mRequest.getResource());
+				
 				writeResponse(response.getResponse(), mSocket, headers, HttpStatus.HTTP200);
 				if (mSocket != null && !mSocket.isClosed()) {
 					mSocket.close();

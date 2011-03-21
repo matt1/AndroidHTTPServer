@@ -9,15 +9,17 @@ import java.util.List;
 
 import org.matt1.http.R;
 import org.matt1.http.Server;
+import org.matt1.http.events.ServerEventListener;
 import org.matt1.utils.Logger;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.Window;
-import android.widget.TextView;
+import android.widget.EditText;
 
 public class HttpServiceGui extends Activity {
 
@@ -28,6 +30,33 @@ public class HttpServiceGui extends Activity {
 	private Thread mServerThread;
 
 	private List<InetAddress> mInterfaces = new ArrayList<InetAddress>();
+
+	
+	/** Handler for server event reporting */
+	private Handler mUpdateHandler = new Handler();
+	private class EventMessage implements Runnable {
+		private String mMessage;
+		public EventMessage(String pMessage) {mMessage = pMessage;}
+		public void run() {updateStatus(mMessage);}
+	}
+	
+	private ServerEventListener mServerEvents = new ServerEventListener() {
+		
+		@Override
+		public void onServerReady(String pAddress, int pPort) {			
+			mUpdateHandler.post(new EventMessage("Server ready on " + pAddress + ":" + String.valueOf(pPort)));
+		}
+		
+		@Override
+		public void onRequestServed(String pResource) {
+			mUpdateHandler.post(new EventMessage("Served " + pResource));
+		}
+		
+		@Override
+		public void onRequestError(String pResource) {
+			mUpdateHandler.post(new EventMessage("Server sent error response " + pResource));
+		}
+	};
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +83,7 @@ public class HttpServiceGui extends Activity {
 		});
 		
     	mVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    	updateStatus("Tap on Start Server below to start serving");
 		       
     }
     
@@ -62,19 +92,21 @@ public class HttpServiceGui extends Activity {
     }
     
     private void updateStatus(String pMessage) {
-    	((TextView)findViewById(R.id.status)).setText(pMessage);
+    	
+    	((EditText)findViewById(R.id.status)).append(pMessage +"\n");
+
     }
     
     private void startServer() {
-    	updateStatus("Getting available network interfaces...");
     	getInterfaces();
     	
-    	updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
-    	Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
+    	//updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
+    	//Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
 		mHttpServer = new Server(mInterfaces.get(0), 8080, "/");
+		mHttpServer.setRequestListener(mServerEvents);
 		mServerThread = new Thread(mHttpServer);
 		mServerThread.start();
-		updateStatus("Server started on " + mInterfaces.get(0).getHostAddress() + ":8080.");
+		//updateStatus("Server started on " + mInterfaces.get(0).getHostAddress() + ":8080.");
     }
     
 
