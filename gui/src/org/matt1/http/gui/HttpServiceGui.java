@@ -1,5 +1,6 @@
 package org.matt1.http.gui;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -19,7 +20,12 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 public class HttpServiceGui extends Activity {
 
@@ -29,7 +35,7 @@ public class HttpServiceGui extends Activity {
 	private Server mHttpServer;
 	private Thread mServerThread;
 
-	private List<InetAddress> mInterfaces = new ArrayList<InetAddress>();
+	private InetAddress mInterface;
 
 	
 	/** Handler for server event reporting */
@@ -38,6 +44,16 @@ public class HttpServiceGui extends Activity {
 		private String mMessage;
 		public EventMessage(String pMessage) {mMessage = pMessage;}
 		public void run() {updateStatus(mMessage);}
+	}
+	
+	/** Handler for address spinner select */
+	private class AddressSelectedListener implements OnItemSelectedListener {
+
+	    public void onItemSelected(AdapterView<?> pParent, View pView, int pPos, long pId) {
+	    	mInterface = (InetAddress) pParent.getItemAtPosition(pPos);
+	    }
+
+	    public void onNothingSelected(AdapterView parent) {}
 	}
 	
 	private ServerEventListener mServerEvents = new ServerEventListener() {
@@ -82,6 +98,9 @@ public class HttpServiceGui extends Activity {
 		    }
 		});
 		
+		// address spinner		
+    	getInterfaces();
+		
     	mVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     	updateStatus("Tap on Start Server below to start serving");
 		       
@@ -98,11 +117,10 @@ public class HttpServiceGui extends Activity {
     }
     
     private void startServer() {
-    	getInterfaces();
     	
     	//updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
     	//Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
-		mHttpServer = new Server(mInterfaces.get(0), 8080, "/");
+		mHttpServer = new Server(mInterface, 8080, "/");
 		mHttpServer.setRequestListener(mServerEvents);
 		mServerThread = new Thread(mHttpServer);
 		mServerThread.start();
@@ -129,18 +147,27 @@ public class HttpServiceGui extends Activity {
 
 	private void getInterfaces() {
 		try {
-			for (Enumeration<NetworkInterface> en = NetworkInterface
-					.getNetworkInterfaces(); en.hasMoreElements();) {
+			ArrayList<InetAddress> addresses = new ArrayList<InetAddress>();
+			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+								
 				NetworkInterface intf = en.nextElement();
-				for (Enumeration<InetAddress> enumIpAddr = intf
-						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+				
+				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
-					if (!inetAddress.isLoopbackAddress()) {
+					if (!inetAddress.isLoopbackAddress()  && inetAddress instanceof Inet4Address) {
 						Logger.debug("Adding network interface to list: " + inetAddress.getHostAddress());
-						mInterfaces.add(inetAddress);
+						//mInterfaces.add(inetAddress);
+						addresses.add(inetAddress);
+						
 					}
 				}
 			}
+			
+			 Spinner spinner = (Spinner) findViewById(R.id.address);
+			 ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, addresses.toArray());
+			 spinner.setAdapter(adapter);
+			 spinner.setOnItemSelectedListener(new AddressSelectedListener());
+			
 		} catch (SocketException e) {
 			Logger.error("Problem enumerating network interfaces");
 		}

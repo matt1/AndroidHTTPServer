@@ -83,7 +83,7 @@ public class Server implements Runnable {
 	 */
 	public void run() {
 		
-		Logger.debug("Server thread initialised!  Attempting to start server.");
+		Logger.debug("Server thread initialised!  Attempting to start server on " + mInterface.toString() + ":" + mPort);
 		
 		//Looper.prepare();
         Socket workerSocket = null;  

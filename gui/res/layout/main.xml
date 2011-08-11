@@ -42,6 +42,21 @@
 
         	</LinearLayout>
         	
+        	<LinearLayout
+           		android:orientation="horizontal"
+            	android:layout_width="fill_parent"
+            	android:layout_height="150px"
+            	android:layout_weight="1">
+
+	            <Spinner
+	            	android:id="@+id/address"
+       				android:layout_width="fill_parent"
+        			android:layout_height="wrap_content">
+	            
+	            </Spinner>
+
+        	</LinearLayout>
+        	
         	<EditText  
 	        	style="@style/MainText"
 	       		android:id="@+id/status"

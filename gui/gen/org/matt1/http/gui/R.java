@@ -29,9 +29,10 @@ public final class R {
         public static final int stop=0x7f020002;
     }
     public static final class id {
-        public static final int start=0x7f060002;
-        public static final int status=0x7f060001;
-        public static final int stop=0x7f060003;
+        public static final int address=0x7f060003;
+        public static final int start=0x7f060001;
+        public static final int status=0x7f060004;
+        public static final int stop=0x7f060002;
         /**  IDs 
          */
         public static final int titleId=0x7f060000;
