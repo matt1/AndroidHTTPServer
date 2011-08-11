@@ -36,7 +36,6 @@ public class HttpServiceGui extends Activity {
 	private InetAddress mInterface;
 	
 	private Spinner mAddressSpinner;
-	private Boolean mFirstRun = true;
 
 	
 	/** Handler for server event reporting */
@@ -54,7 +53,7 @@ public class HttpServiceGui extends Activity {
 	    	mInterface = (InetAddress) pParent.getItemAtPosition(pPos);	
 	    }
 
-	    public void onNothingSelected(AdapterView parent) {}
+	    public void onNothingSelected(AdapterView<?> parent) {}
 	}
 	
 	private ServerEventListener mServerEvents = new ServerEventListener() {
@@ -119,14 +118,11 @@ public class HttpServiceGui extends Activity {
     
     private void startServer() {
     	
-    	//updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
-    	//Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
     	mAddressSpinner.setEnabled(false);
     	mHttpServer = new Server(mInterface, 8080, "/");
 		mHttpServer.setRequestListener(mServerEvents);
 		mServerThread = new Thread(mHttpServer);
 		mServerThread.start();
-		//updateStatus("Server started on " + mInterfaces.get(0).getHostAddress() + ":8080.");
     }
     
 
@@ -158,10 +154,7 @@ public class HttpServiceGui extends Activity {
 				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 					if (!inetAddress.isLoopbackAddress()  && inetAddress instanceof Inet4Address) {
-						Logger.debug("Adding network interface to list: " + inetAddress.getHostAddress());
-						//mInterfaces.add(inetAddress);
-						addresses.add(inetAddress);
-						
+						addresses.add(inetAddress);						
 					}
 				}
 			}
