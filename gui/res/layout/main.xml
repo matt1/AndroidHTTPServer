@@ -24,9 +24,7 @@
 		    
 		    <LinearLayout
            		android:orientation="horizontal"
-            	android:layout_width="fill_parent"
-            	android:layout_height="150px"
-            	android:layout_weight="1">
+            	android:layout_width="fill_parent" android:layout_height="81dp">
 
 	            <Button android:id="@+id/start"
 	            android:clickable="true"
@@ -44,14 +42,11 @@
         	
         	<LinearLayout
            		android:orientation="horizontal"
-            	android:layout_width="fill_parent"
-            	android:layout_height="150px"
-            	android:layout_weight="1">
+            	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 	            <Spinner
 	            	android:id="@+id/address"
-       				android:layout_width="fill_parent"
-        			android:layout_height="wrap_content">
+       				android:layout_width="fill_parent" android:layout_height="wrap_content">
 	            
 	            </Spinner>
 
@@ -60,13 +55,10 @@
         	<EditText  
 	        	style="@style/MainText"
 	       		android:id="@+id/status"
-	       		android:layout_weight="1"
-		    	android:layout_width="fill_parent" 
-		    	android:layout_height="fill_parent" 
+	       		android:layout_width="fill_parent" 
 		    	android:gravity="top"
 		    	android:cursorVisible="false" 
-		    	android:editable="false" 
-		    />
+		    	android:editable="false" android:layout_height="match_parent"/>
         
 	</LinearLayout>
 

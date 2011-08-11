@@ -6,7 +6,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 import org.matt1.http.R;
 import org.matt1.http.Server;
@@ -25,7 +24,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 public class HttpServiceGui extends Activity {
 
@@ -36,6 +34,9 @@ public class HttpServiceGui extends Activity {
 	private Thread mServerThread;
 
 	private InetAddress mInterface;
+	
+	private Spinner mAddressSpinner;
+	private Boolean mFirstRun = true;
 
 	
 	/** Handler for server event reporting */
@@ -50,7 +51,7 @@ public class HttpServiceGui extends Activity {
 	private class AddressSelectedListener implements OnItemSelectedListener {
 
 	    public void onItemSelected(AdapterView<?> pParent, View pView, int pPos, long pId) {
-	    	mInterface = (InetAddress) pParent.getItemAtPosition(pPos);
+	    	mInterface = (InetAddress) pParent.getItemAtPosition(pPos);	
 	    }
 
 	    public void onNothingSelected(AdapterView parent) {}
@@ -99,7 +100,7 @@ public class HttpServiceGui extends Activity {
 		});
 		
 		// address spinner		
-    	getInterfaces();
+    	getInterfaces();    	
 		
     	mVibration = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     	updateStatus("Tap on Start Server below to start serving");
@@ -120,7 +121,8 @@ public class HttpServiceGui extends Activity {
     	
     	//updateStatus("Starting server on " + mInterfaces.get(0).getHostAddress() + "...");
     	//Logger.debug("Starting server on :" + mInterfaces.get(0).getHostAddress());
-		mHttpServer = new Server(mInterface, 8080, "/");
+    	mAddressSpinner.setEnabled(false);
+    	mHttpServer = new Server(mInterface, 8080, "/");
 		mHttpServer.setRequestListener(mServerEvents);
 		mServerThread = new Thread(mHttpServer);
 		mServerThread.start();
@@ -136,6 +138,7 @@ public class HttpServiceGui extends Activity {
     	if (mServerThread != null) {
     		mServerThread.interrupt();
     	}
+    	mAddressSpinner.setEnabled(true);
 		updateStatus("Server stopped.");
     }
     
@@ -163,10 +166,11 @@ public class HttpServiceGui extends Activity {
 				}
 			}
 			
-			 Spinner spinner = (Spinner) findViewById(R.id.address);
-			 ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, addresses.toArray());
-			 spinner.setAdapter(adapter);
-			 spinner.setOnItemSelectedListener(new AddressSelectedListener());
+			mAddressSpinner = (Spinner) findViewById(R.id.address);
+			ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, addresses.toArray());
+			mAddressSpinner.setAdapter(adapter);
+			mAddressSpinner.setOnItemSelectedListener(new AddressSelectedListener());
+			mAddressSpinner.setEnabled(true);
 			
 		} catch (SocketException e) {
 			Logger.error("Problem enumerating network interfaces");
